@@ -7,11 +7,6 @@ const cache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
 
 router.get('/', async (req, res) => {
-  // CORS headers espliciti
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-
   const { q, limit = '16' } = req.query;
   if (!q || q.trim().length < 2) {
     return res.status(400).json({ error: 'Query troppo corta' });
@@ -35,15 +30,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.options('/', (req, res) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.sendStatus(200);
-});
-
 router.get('/suggestions', (req, res) => {
-  res.header('Access-Control-Allow-Origin', '*');
   const { q } = req.query;
   if (!q) return res.json([]);
   const SUGGESTIONS = ['iPhone 16 Pro','AirPods Pro','Samsung Galaxy S25','Sony WH-1000XM5','Dyson V15','Nike Air Max','PlayStation 5','Nintendo Switch 2','MacBook Pro','Apple Watch','iPad Pro','Kindle Paperwhite','LEGO Technic','Adidas Stan Smith','Bose QuietComfort'];
