@@ -14,7 +14,7 @@
 
 const axios = require('axios');
 
-const SERPAPI_KEY = process.env.SERPAPI_KEY || '';
+const SERPAPI_KEY = process.env.SERPAPI_KEY || '01e03c156023f6244ca4ad6238fe68b25dd88877e9c68bde1ab3cacce56d4fd2';
 const SCRAPING_KEY = process.env.SCRAPINGBEE_API_KEY || '';
 
 /* ─── PROVIDER 1: SerpAPI (Google Shopping) ─── */
