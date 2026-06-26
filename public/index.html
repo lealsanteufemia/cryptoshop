@@ -336,6 +336,49 @@ footer{border-top:1px solid var(--border);padding:20px;text-align:center;font-si
 .skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:12px;height:240px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
+
+/* ── PWA INSTALL BANNER ── */
+.pwa-banner{
+  position:fixed;bottom:0;left:0;right:0;z-index:9998;
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:14px 20px;display:flex;align-items:center;gap:14px;
+  box-shadow:0 -4px 20px rgba(0,0,0,.12);
+  transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.pwa-banner.show{transform:translateY(0)}
+.pwa-banner-icon{width:48px;height:48px;border-radius:12px;
+  background:linear-gradient(135deg,#5B3CF5,#00C896);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0}
+.pwa-banner-text{flex:1}
+.pwa-banner-title{font-size:14px;font-weight:700;margin-bottom:2px}
+.pwa-banner-sub{font-size:12px;color:var(--muted)}
+.pwa-banner-btns{display:flex;gap:8px;flex-shrink:0}
+.pwa-install-btn{padding:9px 16px;background:var(--brand);color:#fff;
+  border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer}
+.pwa-dismiss-btn{padding:9px 12px;background:transparent;color:var(--muted);
+  border:1px solid var(--border-mid);border-radius:9px;font-size:13px;cursor:pointer}
+
+/* iOS install instructions modal */
+.ios-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);
+  display:flex;align-items:flex-end;justify-content:center;padding:20px}
+.ios-modal-box{background:var(--surface);border-radius:20px 20px 16px 16px;
+  padding:24px;width:100%;max-width:420px;text-align:center}
+.ios-modal-title{font-size:17px;font-weight:700;margin-bottom:6px}
+.ios-modal-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.ios-steps{text-align:left;margin-bottom:20px}
+.ios-step{display:flex;align-items:center;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--border);font-size:14px}
+.ios-step:last-child{border-bottom:none}
+.ios-step-num{width:28px;height:28px;border-radius:50%;background:var(--brand);
+  color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0}
+.ios-step-icon{font-size:22px;flex-shrink:0}
+.ios-arrow{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
+  font-size:28px;animation:bounce .8s infinite}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}
+  50%{transform:translateX(-50%) translateY(6px)}}
+
 </style>
 </head>
 <body>
@@ -1032,7 +1075,7 @@ footer{border-top:1px solid var(--border);padding:20px;text-align:center;font-si
 
 <script>
 /* ─── CONFIG ─── */
-const API = 'http://localhost:3001'; // cambia con URL Railway in produzione
+const API = 'https://cryptoshop-production.up.railway.app'; // cambia con URL Railway in produzione
 
 /* ─── PRICING ─── */
 const CS_PCT=0.10,CS_MIN=5,CG_PCT=0.010,FX_PCT=0.0087,BC_FIX=0.30,SEPA_PCT=0.003;
@@ -1849,6 +1892,79 @@ function submitMerchant(){
 }
 
 
+
+/* ─── PWA / SERVICE WORKER ─── */
+let deferredPrompt = null;
+
+// Registra service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('[PWA] Service Worker registrato'))
+      .catch(err => console.log('[PWA] SW fallito:', err));
+  });
+}
+
+// Cattura evento installazione (Android/Chrome/Desktop)
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Mostra banner solo se non già installata e non già dismessa
+  if (!localStorage.getItem('pwa-dismissed') && !window.matchMedia('(display-mode: standalone)').matches) {
+    setTimeout(() => {
+      document.getElementById('pwa-banner').classList.add('show');
+    }, 3000); // aspetta 3 secondi prima di mostrare
+  }
+});
+
+// Installazione completata
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwa-banner').classList.remove('show');
+  deferredPrompt = null;
+  showToast('🎉', 'CryptoShop installata! Trovala nella schermata Home.');
+});
+
+function installPwa() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isAndroid = /Android/.test(navigator.userAgent);
+
+  if (deferredPrompt) {
+    // Android/Chrome — prompt nativo
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choice => {
+      if (choice.outcome === 'accepted') {
+        showToast('✅', 'Installazione avviata!');
+      }
+      deferredPrompt = null;
+      document.getElementById('pwa-banner').classList.remove('show');
+    });
+  } else if (isIOS) {
+    // iOS — mostra istruzioni manuali
+    document.getElementById('pwa-banner').classList.remove('show');
+    document.getElementById('ios-modal').classList.remove('hidden');
+  } else {
+    // Desktop o browser senza supporto
+    showToast('💡', 'Apri il sito in Chrome o Edge e usa "Installa app" dalla barra degli indirizzi.');
+    document.getElementById('pwa-banner').classList.remove('show');
+  }
+}
+
+function dismissPwa() {
+  document.getElementById('pwa-banner').classList.remove('show');
+  localStorage.setItem('pwa-dismissed', '1');
+}
+
+// Mostra banner iOS automaticamente su Safari iPhone (non supporta beforeinstallprompt)
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
+const wasDismissed = localStorage.getItem('pwa-dismissed');
+
+if (isIOS && !isInStandaloneMode && !wasDismissed) {
+  setTimeout(() => {
+    document.getElementById('pwa-banner').classList.add('show');
+  }, 4000);
+}
+
 /* ─── INIT ─── */
 updateNavBalance();
 renderProds(PRODUCTS);
@@ -1872,5 +1988,48 @@ showPage = function(p){
   }
 };
 </script>
+
+<!-- PWA INSTALL BANNER -->
+<div class="pwa-banner" id="pwa-banner">
+  <div class="pwa-banner-icon">🛍️</div>
+  <div class="pwa-banner-text">
+    <div class="pwa-banner-title">Installa CryptoShop</div>
+    <div class="pwa-banner-sub">Aggiungi alla schermata Home — funziona come un'app</div>
+  </div>
+  <div class="pwa-banner-btns">
+    <button class="pwa-dismiss-btn" onclick="dismissPwa()">✕</button>
+    <button class="pwa-install-btn" onclick="installPwa()">Installa</button>
+  </div>
+</div>
+
+<!-- iOS INSTALL MODAL -->
+<div class="ios-modal hidden" id="ios-modal">
+  <div class="ios-modal-box">
+    <div style="font-size:48px;margin-bottom:10px">📲</div>
+    <div class="ios-modal-title">Installa CryptoShop</div>
+    <div class="ios-modal-sub">Aggiungi alla schermata Home per un'esperienza da app vera</div>
+    <div class="ios-steps">
+      <div class="ios-step">
+        <div class="ios-step-num">1</div>
+        <span class="ios-step-icon">⬆️</span>
+        <span>Tocca il pulsante <strong>Condividi</strong> in basso nel browser Safari</span>
+      </div>
+      <div class="ios-step">
+        <div class="ios-step-num">2</div>
+        <span class="ios-step-icon">➕</span>
+        <span>Scorri e tocca <strong>"Aggiungi a schermata Home"</strong></span>
+      </div>
+      <div class="ios-step">
+        <div class="ios-step-num">3</div>
+        <span class="ios-step-icon">✅</span>
+        <span>Tocca <strong>Aggiungi</strong> in alto a destra</span>
+      </div>
+    </div>
+    <button class="pwa-install-btn" style="width:100%;padding:13px" onclick="document.getElementById('ios-modal').classList.add('hidden')">
+      Ho capito!
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
