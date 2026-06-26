@@ -22,23 +22,8 @@ app.use(helmet({
   contentSecurityPolicy: false, // disabilitato per semplicità in dev
 }));
 
-app.use(cors({ origin: '*', credentials: false }));
-// app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'https://peaceful-bombolone-d3e100.netlify.app',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    /\.vercel\.app$/,         // domini Vercel
-    /\.netlify\.app$/,        // domini Netlify
-  ],
-  credentials: true,
-}));
+app.use(cors({ origin: "*" }));
 
-// Il webhook CoinGate deve ricevere il body RAW (non parsato)
-// quindi lo gestiamo prima del json() middleware
-app.use('/api/orders/webhook', express.raw({ type: '*/*' }));
-
-// Per tutto il resto, JSON
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
