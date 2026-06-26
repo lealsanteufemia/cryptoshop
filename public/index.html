@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoShop — Compra ovunque, paga in crypto</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#5B3CF5;--brand-mid:#7B5FF7;--brand-light:#EDE9FF;
+  --accent:#00C896;--accent-dark:#009E78;--accent-light:#D9F7EF;
+  --warn:#F59E0B;--danger:#EF4444;--pink:#EC4899;
+  --bg:#F7F7FB;--surface:#FFF;--surface2:#F2F2F7;
+  --border:rgba(0,0,0,.07);--border-mid:rgba(0,0,0,.13);
+  --text:#111;--muted:#6B6B6B;--subtle:#A0A0A8;
+  --shadow:0 1px 3px rgba(0,0,0,.07);--shadow-md:0 4px 16px rgba(0,0,0,.09);
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0F0F17;--surface:#18182A;--surface2:#20203A;
+  --border:rgba(255,255,255,.07);--border-mid:rgba(255,255,255,.13);
+  --text:#F0F0F8;--muted:#9090A8;--subtle:#5A5A72;
+  --brand-light:#22185A;--accent-light:#0A3028;
+}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);min-height:100vh;line-height:1.5;font-size:15px}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+.hidden{display:none!important}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:700;letter-spacing:-.5px;color:var(--brand);cursor:pointer;white-space:nowrap}
+.logo span{color:var(--accent)}
+.nav-search{flex:1;max-width:340px;display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:22px;padding:7px 14px}
+.nav-search input{flex:1;border:none;outline:none;font-size:13px;background:transparent;color:var(--text)}
+.nav-search input::placeholder{color:var(--subtle)}
+.nav-r{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nbtn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--border-mid);background:transparent;color:var(--text);transition:background .15s;cursor:pointer}
+.nbtn:hover{background:var(--surface2)}
+.nbtn.p{background:var(--brand);color:#fff;border-color:var(--brand)}
+.nbtn.p:hover{background:var(--brand-mid)}
+/* wallet pill in nav */
+.wallet-pill{display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:20px;background:var(--surface2);border:1px solid var(--border-mid);cursor:pointer;font-size:13px;transition:border-color .15s}
+.wallet-pill:hover{border-color:var(--accent)}
+.wallet-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+.wallet-bal{font-weight:700;color:var(--accent)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* TICKER */
+.ticker{background:var(--surface2);border-bottom:1px solid var(--border)}
+.ticker-inner{max-width:1200px;margin:0 auto;display:flex;gap:20px;align-items:center;padding:7px 24px;font-size:12px;overflow-x:auto}
+.tick{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.tsym{font-weight:700}.tval{color:var(--muted)}.tup{color:#10B981}.tdn{color:#EF4444}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#EDE9FF 0%,#D9F7EF 100%);padding:52px 24px 40px;text-align:center}
+@media(prefers-color-scheme:dark){.hero{background:linear-gradient(135deg,#22185A 0%,#0A3028 100%)}}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border-mid);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--brand);margin-bottom:20px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,5vw,46px);font-weight:700;letter-spacing:-1.5px;line-height:1.1;margin-bottom:12px}
+.hl{background:linear-gradient(135deg,var(--brand),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:15px;color:var(--muted);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto}
+
+/* TABS */
+.mode-tabs{display:flex;background:var(--surface);border:1px solid var(--border-mid);border-radius:10px;padding:4px;margin-bottom:14px;max-width:580px;margin-left:auto;margin-right:auto}
+.mtab{flex:1;padding:8px;border:none;border-radius:7px;font-size:13px;font-weight:500;background:transparent;color:var(--muted);transition:all .15s;cursor:pointer}
+.mtab.active{background:var(--brand);color:#fff}
+
+/* SEARCH */
+.sbox-wrap{max-width:580px;margin:0 auto}
+.sbox{display:flex;align-items:center;gap:10px;background:var(--surface);border:2px solid var(--brand);border-radius:13px;padding:10px 14px}
+.sbox input{flex:1;border:none;outline:none;font-size:15px;background:transparent;color:var(--text)}
+.sbox input::placeholder{color:var(--subtle)}
+.sbox button{padding:8px 18px;background:var(--brand);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;white-space:nowrap}
+.schips{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.schip{padding:4px 11px;border-radius:20px;font-size:12px;background:var(--surface);border:1px solid var(--border-mid);color:var(--muted);cursor:pointer}
+.schip:hover{border-color:var(--brand);color:var(--brand)}
+
+/* URL PANEL */
+.url-panel{max-width:580px;margin:0 auto;background:var(--surface);border:1px solid var(--border-mid);border-radius:13px;padding:18px}
+.url-lbl{font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500}
+.url-row{display:flex;gap:8px}
+.url-row input{flex:1;padding:10px 12px;border:1px solid var(--border-mid);border-radius:9px;font-size:13px;background:var(--surface2);color:var(--text);outline:none}
+.url-row input:focus{border-color:var(--brand)}
+.url-row button{padding:10px 15px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;white-space:nowrap}
+
+/* PREVIEW */
+.preview-card{margin-top:14px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px}
+.prev-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.prev-thumb{width:56px;height:56px;border-radius:9px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.prev-name{font-size:14px;font-weight:700;margin-bottom:3px}
+.prev-src{font-size:11px;color:var(--muted)}
+.prev-avail{font-size:11px;color:var(--accent);font-weight:600;margin-top:2px}
+
+/* BREAKDOWN */
+.bdt{width:100%;border-collapse:collapse;margin-bottom:10px}
+.bdt td{padding:4px 0;font-size:13px;vertical-align:top}
+.bdt td:last-child{text-align:right;font-weight:600;white-space:nowrap}
+.bd-sec{font-size:10px;font-weight:700;color:var(--subtle);letter-spacing:.06em;padding:9px 0 3px!important;text-transform:uppercase}
+.bd-div td{border-top:1px solid var(--border);padding-top:9px!important}
+.bd-tot td{font-size:14px;font-weight:800}
+.bd-tot td:last-child{color:var(--brand);font-size:17px}
+.bd-m{color:var(--muted)!important;font-weight:400!important}
+.bd-you{color:var(--accent);font-weight:700!important}
+.bd-prov{color:var(--warn);font-weight:600!important}
+.bd-note{font-size:10px;color:var(--subtle);display:block;font-weight:400}
+
+.pay-btn{width:100%;margin-top:12px;padding:13px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.pay-btn:hover{background:var(--brand-mid)}
+.pay-btn.accent{background:var(--accent)}
+.pay-btn.accent:hover{background:var(--accent-dark)}
+
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:28px 24px}
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700}
+.sec-link{font-size:13px;color:var(--brand);cursor:pointer;font-weight:600}
+
+/* CATEGORIES */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:9px}
+.cat-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:13px 7px;text-align:center;cursor:pointer;transition:all .15s}
+.cat-card:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.cat-icon{font-size:22px;margin-bottom:6px}
+.cat-name{font-size:11px;font-weight:600;color:var(--muted)}
+
+/* PRODUCTS */
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:13px}
+.prod-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;cursor:pointer;transition:all .15s;display:flex;flex-direction:column}
+.prod-card:hover{border-color:var(--brand-mid);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.prod-img{height:120px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:42px;border-bottom:1px solid var(--border)}
+.prod-body{padding:12px;flex:1;display:flex;flex-direction:column;gap:4px}
+.prod-name{font-size:13px;font-weight:700;line-height:1.3}
+.prod-src{font-size:11px;color:var(--muted)}
+.prod-bottom{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;padding-top:7px}
+.prod-fiat{font-size:11px;color:var(--muted)}
+.prod-crypto{font-size:13px;font-weight:800;color:var(--brand)}
+.prod-badge{font-size:10px;padding:2px 6px;border-radius:5px;background:var(--accent-light);color:var(--accent-dark);font-weight:700}
+.buy-btn{padding:6px 12px;background:var(--brand);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700}
+
+/* HOW IT WORKS */
+.how-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:36px;margin:28px 0}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:22px}
+.step{text-align:center}
+.step-ico{font-size:32px;margin-bottom:9px}
+.step-title{font-size:14px;font-weight:700;margin-bottom:6px}
+.step-desc{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* PIANI ABBONAMENTO */
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.plan-card{background:var(--surface);border:1px solid var(--border-mid);border-radius:13px;padding:20px;text-align:center;position:relative;transition:all .15s}
+.plan-card:hover{box-shadow:var(--shadow-md)}
+.plan-card.featured{border:2px solid var(--brand);background:var(--brand-light)}
+.plan-popular{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;white-space:nowrap}
+.plan-name{font-size:16px;font-weight:700;margin-bottom:4px}
+.plan-price{font-size:26px;font-weight:800;color:var(--brand);margin:10px 0 4px}
+.plan-price span{font-size:13px;font-weight:400;color:var(--muted)}
+.plan-features{list-style:none;margin:12px 0;text-align:left}
+.plan-features li{font-size:12px;padding:4px 0;color:var(--muted);display:flex;align-items:center;gap:6px}
+.plan-features li::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0}
+.plan-btn{width:100%;margin-top:12px;padding:10px;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff}
+.plan-btn.outline{background:transparent;border:1px solid var(--border-mid);color:var(--text)}
+
+/* CHECKOUT */
+.co-layout{display:grid;grid-template-columns:1fr 400px;gap:20px;align-items:start}
+.co-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
+.co-title{font-size:15px;font-weight:700;margin-bottom:16px}
+.fg{margin-bottom:12px}
+.flabel{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.04em}
+.finput{width:100%;padding:10px 12px;border:1px solid var(--border-mid);border-radius:9px;font-size:13px;background:var(--surface2);color:var(--text);outline:none}
+.finput:focus{border-color:var(--brand)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* OPZIONI SPEDIZIONE */
+.ship-option{border:1px solid var(--border-mid);border-radius:11px;padding:14px 16px;cursor:pointer;transition:all .15s;margin-bottom:9px;display:flex;align-items:flex-start;gap:12px}
+.ship-option:hover{border-color:var(--brand)}
+.ship-option.selected{border-color:var(--brand);background:var(--brand-light)}
+.ship-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s}
+.ship-option.selected .ship-radio{border-color:var(--brand);background:var(--brand)}
+.ship-radio-dot{width:8px;height:8px;border-radius:50%;background:#fff;opacity:0;transition:opacity .15s}
+.ship-option.selected .ship-radio-dot{opacity:1}
+.ship-info{flex:1}
+.ship-name{font-size:14px;font-weight:700;margin-bottom:3px}
+.ship-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.ship-price{font-size:14px;font-weight:800;color:var(--accent);white-space:nowrap;margin-left:auto;padding-left:12px}
+.ship-price.free{color:var(--accent)}
+.ship-price.paid{color:var(--brand)}
+
+/* OPZIONE REGALO */
+.gift-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;cursor:pointer;background:var(--surface2);border-radius:10px;border:1px solid var(--border)}
+.toggle-track{width:36px;height:20px;border-radius:10px;background:var(--border-mid);position:relative;transition:background .2s;flex-shrink:0}
+.toggle-track.on{background:var(--accent)}
+.toggle-knob{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle-track.on .toggle-knob{left:18px}
+
+/* COIN SELECTOR */
+.coin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.coino{text-align:center;padding:12px 7px;border-radius:9px;border:2px solid var(--border);cursor:pointer;transition:all .15s}
+.coino:hover{border-color:var(--brand-mid)}
+.coino.active{border-color:var(--brand);background:var(--brand-light)}
+.coino-icon{font-size:20px;margin-bottom:3px}
+.coino-name{font-size:13px;font-weight:700}
+.coino-sub{font-size:10px;color:var(--muted)}
+
+/* CREDITO / WALLET */
+.credit-badge{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--accent-light);border-radius:9px;font-size:13px;color:var(--accent-dark);border:1px solid rgba(0,200,150,.2)}
+.credit-badge strong{font-weight:800}
+.qr-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:18px;text-align:center;margin:12px 0}
+.qr-box{width:120px;height:120px;margin:0 auto 10px;background:var(--surface);border-radius:9px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:40px}
+.waddr{font-family:monospace;font-size:10px;color:var(--muted);background:var(--surface);padding:7px;border-radius:7px;word-break:break-all;border:1px solid var(--border);margin:7px 0}
+.timer-txt{font-size:12px;color:var(--warn);font-weight:700;margin-top:5px}
+
+/* WALLET PAGE */
+.wallet-page{max-width:760px;margin:0 auto;padding:28px 24px}
+.wallet-hero{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-mid) 100%);border-radius:16px;padding:28px;color:#fff;margin-bottom:22px}
+.wallet-bal-big{font-family:'Space Grotesk',sans-serif;font-size:42px;font-weight:800;letter-spacing:-1px;margin:8px 0}
+.wallet-bal-sub{font-size:13px;opacity:.8}
+.recharge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin:14px 0}
+.recharge-btn{padding:10px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:9px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;text-align:center;transition:background .15s}
+.recharge-btn:hover{background:rgba(255,255,255,.25)}
+.recharge-custom{display:flex;gap:8px;margin-top:8px}
+.recharge-custom input{flex:1;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:14px;outline:none}
+.recharge-custom input::placeholder{color:rgba(255,255,255,.5)}
+.recharge-custom button{padding:9px 16px;background:#fff;color:var(--brand);border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer}
+.history-table{width:100%;border-collapse:collapse}
+.history-table th{text-align:left;font-size:11px;font-weight:700;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em}
+.history-table td{padding:12px;font-size:13px;border-bottom:1px solid var(--border)}
+.history-table tr:last-child td{border-bottom:none}
+.hist-in{color:var(--accent);font-weight:700}
+.hist-out{color:var(--danger);font-weight:700}
+
+/* STATUS BADGES */
+.sbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:14px;font-size:11px;font-weight:700}
+.s-pending{background:#FEF3C7;color:#92400E}
+.s-paid{background:var(--accent-light);color:var(--accent-dark)}
+.s-processing{background:var(--brand-light);color:var(--brand)}
+.s-shipped{background:#DBEAFE;color:#1E40AF}
+.s-delivered{background:#D1FAE5;color:#065F46}
+
+/* ADMIN */
+.admin-wrap{max-width:1100px;margin:0 auto;padding:26px 24px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:15px 17px}
+.kpi-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.kpi-value{font-size:24px;font-weight:800;letter-spacing:-1px}
+.kpi.g .kpi-value{color:var(--accent-dark)}
+.kpi.b .kpi-value{color:var(--brand)}
+.kpi.w .kpi-value{color:var(--warn)}
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.fbtn{padding:6px 13px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--border-mid);background:var(--surface2);color:var(--muted);cursor:pointer}
+.fbtn.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.otable{width:100%;border-collapse:collapse;background:var(--surface);border-radius:11px;overflow:hidden;border:1px solid var(--border)}
+.otable th{text-align:left;font-size:10px;font-weight:700;color:var(--muted);padding:10px 13px;border-bottom:1px solid var(--border);background:var(--surface2);text-transform:uppercase;letter-spacing:.04em}
+.otable td{padding:12px 13px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+.otable tr:last-child td{border-bottom:none}
+.otable tr:hover td{background:var(--surface2)}
+.act-btn{padding:5px 10px;border-radius:7px;font-size:11px;font-weight:600;border:1px solid var(--border-mid);background:var(--surface);color:var(--text);cursor:pointer;margin-right:4px}
+.act-btn:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
+.act-btn.ok:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.act-btn.del:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--surface);border-radius:14px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;color:var(--muted);cursor:pointer;line-height:1}
+.modal-body{padding:20px}
+.drow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.drow:last-child{border-bottom:none}
+.drow-lbl{color:var(--muted);font-size:12px}
+.drow-val{font-weight:600}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 16px;box-shadow:var(--shadow-md);font-size:13px;display:flex;align-items:center;gap:9px;transform:translateY(80px);opacity:0;transition:all .3s;max-width:290px}
+.toast.show{transform:translateY(0);opacity:1}
+.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+footer{border-top:1px solid var(--border);padding:20px;text-align:center;font-size:12px;color:var(--muted);margin-top:40px}
+@media(max-width:768px){.co-layout,.steps,.kpi-grid,.plans-grid{grid-template-columns:1fr}.prod-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ── STORES / PAY NOW ── */
+.store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.store-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .15s}
+.store-card:hover{border-color:var(--brand);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.store-card.featured{border-color:var(--accent);border-width:2px}
+.store-img{height:80px;background:linear-gradient(135deg,var(--brand-light),var(--accent-light));display:flex;align-items:center;justify-content:center;font-size:36px}
+.store-body{padding:14px}
+.store-name{font-size:14px;font-weight:700;margin-bottom:3px}
+.store-cat{font-size:11px;color:var(--muted);margin-bottom:6px}
+.store-tags{display:flex;gap:5px;flex-wrap:wrap}
+.store-tag{font-size:10px;padding:2px 7px;border-radius:5px;background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.store-tag.offer{background:var(--accent-light);color:var(--accent-dark);border-color:rgba(0,200,150,.2)}
+.store-sponsor-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--warn);color:#fff;margin-left:6px}
+.pay-method-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:14px 0}
+.pay-method{border:2px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all .15s}
+.pay-method:hover{border-color:var(--brand)}
+.pay-method.active{border-color:var(--brand);background:var(--brand-light)}
+.pay-method-icon{font-size:22px;margin-bottom:5px}
+.pay-method-name{font-size:12px;font-weight:700}
+.pay-method-sub{font-size:10px;color:var(--muted)}
+.amount-display{font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:800;text-align:center;padding:20px;background:var(--surface2);border-radius:12px;margin:14px 0;color:var(--brand)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:0 auto}
+.numpad-btn{padding:16px;border:1px solid var(--border);border-radius:10px;font-size:18px;font-weight:600;background:var(--surface);cursor:pointer;transition:background .1s;text-align:center}
+.numpad-btn:hover{background:var(--surface2)}
+.numpad-btn:active{background:var(--brand-light)}
+.qr-pay-display{background:var(--surface2);border-radius:14px;padding:24px;text-align:center;border:2px dashed var(--border-mid)}
+.map-placeholder{height:200px;background:var(--surface2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:40px;border:1px solid var(--border);margin-bottom:16px}
+
+
+/* ── SEARCH RESULTS ── */
+.search-results-wrap{max-width:1200px;margin:0 auto;padding:0 24px 32px}
+.search-bar-live{display:flex;align-items:center;gap:10px;background:var(--surface);border:2px solid var(--brand);border-radius:13px;padding:10px 14px;margin-bottom:8px}
+.search-bar-live input{flex:1;border:none;outline:none;font-size:15px;background:transparent;color:var(--text)}
+.search-bar-live button{padding:8px 18px;background:var(--brand);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;white-space:nowrap}
+.suggestions-box{background:var(--surface);border:1px solid var(--border-mid);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.suggestion-item{padding:10px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.suggestion-item:last-child{border-bottom:none}
+.suggestion-item:hover{background:var(--surface2)}
+.result-meta{font-size:12px;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.result-source{padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;background:var(--accent-light);color:var(--accent-dark)}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .15s;display:flex;flex-direction:column}
+.result-card:hover{border-color:var(--brand-mid);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.result-img{height:110px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:40px;border-bottom:1px solid var(--border);position:relative}
+.result-img img{width:100%;height:100%;object-fit:contain;padding:8px}
+.result-body{padding:12px;flex:1;display:flex;flex-direction:column;gap:4px}
+.result-name{font-size:12px;font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.result-store{font-size:11px;color:var(--muted)}
+.result-rating{font-size:11px;color:var(--warn)}
+.result-bottom{margin-top:auto;padding-top:8px;border-top:1px solid var(--border)}
+.result-original{font-size:11px;color:var(--muted)}
+.result-crypto{font-size:14px;font-weight:800;color:var(--brand)}
+.result-commission{font-size:10px;color:var(--muted)}
+.loading-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:12px;height:240px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo" onclick="goHome()">crypto<span>shop</span></div>
+    <div class="nav-search">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--subtle);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input placeholder="Cerca o incolla URL…" id="navQ" onkeydown="if(event.key==='Enter')doNavSearch()">
+    </div>
+    <div class="nav-r">
+      <button class="nbtn" onclick="showPage('orders')">Ordini</button>
+      <button class="nbtn" onclick="showPage('stores')" style="color:var(--accent)">🏪 Negozi</button>
+      <button class="nbtn" onclick="showPage('paynow')" style="color:var(--brand)">📲 Paga ora</button>
+      <button class="nbtn" onclick="showPage('plans')">Abbonamenti</button>
+      <button class="nbtn" onclick="showPage('admin')" style="color:var(--muted)">Admin</button>
+      <div class="wallet-pill" onclick="showPage('wallet')">
+        <div class="wallet-dot"></div>
+        <span>Saldo: <span class="wallet-bal" id="nav-bal">€0.00</span></span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <div class="tick"><span class="tsym">USDC</span><span class="tval">€0.87</span><span class="tup">+0.1%</span></div>
+    <div class="tick"><span class="tsym">ETH</span><span class="tval">€2,341</span><span class="tup">+2.4%</span></div>
+    <div class="tick"><span class="tsym">BTC</span><span class="tval">€89,200</span><span class="tdn">-0.8%</span></div>
+    <div class="tick"><span class="tsym">SOL</span><span class="tval">€148</span><span class="tup">+3.1%</span></div>
+    <div class="tick" style="margin-left:auto;color:var(--accent);font-weight:600">🔒 CoinGate · CASP MiCA</div>
+  </div>
+</div>
+
+<!-- ═══ HOME ═══ -->
+<div id="page-home">
+<div class="hero">
+  <div class="hero-pill">🌍 Qualsiasi prodotto · Qualsiasi sito · Paghi in crypto</div>
+  <h1 style="font-family:'Space Grotesk',sans-serif">Compra <span class="hl">qualsiasi cosa</span><br>con le tue crypto</h1>
+  <p class="hero-sub">Cerca nel catalogo o incolla il link di qualsiasi prodotto. Paghiamo noi in EUR, tu paghi solo in crypto.</p>
+  <div class="mode-tabs">
+    <button class="mtab active" id="tab-cat" onclick="switchMode('cat')">🔍 Catalogo</button>
+    <button class="mtab" id="tab-url" onclick="switchMode('url')">🔗 Incolla link esterno</button>
+  </div>
+  <div id="cat-mode">
+    <div class="sbox-wrap">
+      <div class="sbox">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--subtle);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="catQ" placeholder="Cerca qualsiasi prodotto — cuffie Apple, Nike, Dyson…" onkeydown="if(event.key==='Enter')doSearch()" oninput="onSearchType(this.value)" autocomplete="off">
+        <button onclick="doSearch()">Cerca</button>
+      </div>
+      <div id="suggestions-box" class="hidden suggestions-box"></div>
+      <div class="schips">
+        <span class="schip" onclick="setQ('iPhone 16 Pro')">📱 iPhone</span>
+        <span class="schip" onclick="setQ('cuffie wireless')">🎧 Cuffie</span>
+        <span class="schip" onclick="setQ('Nike Air Max')">👟 Nike</span>
+        <span class="schip" onclick="setQ('PlayStation 5')">🎮 PS5</span>
+        <span class="schip" onclick="setQ('Dyson V15')">🌀 Dyson</span>
+        <span class="schip" onclick="setQ('MacBook Pro')">💻 MacBook</span>
+      </div>
+    </div>
+  </div>
+  <div id="url-mode" class="hidden">
+    <div class="url-panel">
+      <div class="url-lbl">Incolla il link del prodotto da qualsiasi sito (Amazon, Zalando, Ikea, siti esteri…)</div>
+      <div class="url-row">
+        <input type="text" id="urlInput" placeholder="https://www.amazon.it/dp/..." oninput="onUrlType(this.value)">
+        <button onclick="analyzeUrl()">Analizza →</button>
+      </div>
+      <div id="url-loading" class="hidden" style="text-align:center;padding:20px 0"><div class="spinner"></div><div style="font-size:13px;color:var(--muted)">Analizzo il prodotto…</div></div>
+      <div id="url-result"></div>
+    </div>
+  </div>
+</div>
+<!-- SEARCH RESULTS (appare sopra le categorie quando si cerca) -->
+<div id="search-results-page" class="hidden">
+  <div class="search-results-wrap">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <button onclick="closeSearch()" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;display:flex;align-items:center;gap:4px">← Torna</button>
+      <div class="search-bar-live">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--subtle);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="searchLiveQ" placeholder="Cerca prodotto…" onkeydown="if(event.key==='Enter')doSearch()">
+        <button onclick="doSearch()">Cerca</button>
+      </div>
+    </div>
+    <div class="result-meta" id="result-meta"></div>
+    <div id="results-container"></div>
+  </div>
+</div>
+
+<div class="main">
+  <section style="margin-bottom:32px">
+    <div class="sec-head"><div class="sec-title">Categorie</div><span class="sec-link">Tutte →</span></div>
+    <div class="cat-grid">
+      <div class="cat-card" onclick="filterCat('tech')"><div class="cat-icon">💻</div><div class="cat-name">Tech</div></div>
+      <div class="cat-card" onclick="filterCat('moda')"><div class="cat-icon">👗</div><div class="cat-name">Moda</div></div>
+      <div class="cat-card" onclick="filterCat('casa')"><div class="cat-icon">🏠</div><div class="cat-name">Casa</div></div>
+      <div class="cat-card" onclick="filterCat('gaming')"><div class="cat-icon">🎮</div><div class="cat-name">Gaming</div></div>
+      <div class="cat-card" onclick="filterCat('beauty')"><div class="cat-icon">🧴</div><div class="cat-name">Beauty</div></div>
+      <div class="cat-card" onclick="filterCat('sport')"><div class="cat-icon">🚲</div><div class="cat-name">Sport</div></div>
+      <div class="cat-card" onclick="filterCat('libri')"><div class="cat-icon">📚</div><div class="cat-name">Libri</div></div>
+      <div class="cat-card" onclick="filterCat('tech')"><div class="cat-icon">🕹️</div><div class="cat-name">Console</div></div>
+      <div class="cat-card" onclick="filterCat('auto')"><div class="cat-icon">🚗</div><div class="cat-name">Auto</div></div>
+      <div class="cat-card" onclick="filterCat('viaggi')"><div class="cat-icon">✈️</div><div class="cat-name">Viaggi</div></div>
+    </div>
+  </section>
+  <section>
+    <div class="sec-head"><div class="sec-title" id="prod-title">Prodotti in evidenza</div><span class="sec-link">Vedi tutti →</span></div>
+    <div class="prod-grid" id="prod-grid"></div>
+  </section>
+  <div class="how-section">
+    <div class="sec-title" style="text-align:center">Come funziona</div>
+    <div class="steps">
+      <div class="step"><div class="step-ico">🔍</div><div class="step-title">Trova o incolla il link</div><div class="step-desc">Cerca nel catalogo oppure incolla il link di qualsiasi prodotto da qualsiasi sito — Amazon, Zalando, Ikea, siti esteri, ovunque.</div></div>
+      <div class="step"><div class="step-ico">🪙</div><div class="step-title">Paga in crypto</div><div class="step-desc">Vedi ogni voce di costo in dettaglio. Paghi con USDC, ETH o BTC. O usa il tuo credito prepagato per ordini istantanei.</div></div>
+      <div class="step"><div class="step-ico">🚚</div><div class="step-title">Consegna diretta a te</div><div class="step-desc">Il fornitore spedisce direttamente al tuo indirizzo. Oppure scegli la spedizione tramite noi per packaging neutro o consolidamento ordini.</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div style="background:var(--surface2);border-radius:11px;padding:16px">
+        <div style="font-size:16px;margin-bottom:7px">🎁 Spedizione regalo</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:5px">Stai comprando un regalo?</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Il pacco arriva senza scontrino con il prezzo. Aggiungi un messaggio personalizzato. Gratis.</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:11px;padding:16px">
+        <div style="font-size:16px;margin-bottom:7px">💳 Credito prepagato</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:5px">Ricarica e compra subito</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Carica USDC nel tuo wallet interno e usalo per ordini immediati senza approvare ogni transazione.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ CHECKOUT ═══ -->
+<div id="page-checkout" class="hidden">
+<div class="main">
+  <button onclick="goHome()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:14px">← Torna</button>
+  <h2 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:20px">Checkout</h2>
+  <div class="co-layout">
+    <!-- COLONNA SINISTRA -->
+    <div>
+      <!-- INDIRIZZO -->
+      <div class="co-card">
+        <div class="co-title">📦 Indirizzo di consegna</div>
+        <div style="background:var(--accent-light);border:1px solid rgba(0,200,150,.25);border-radius:9px;padding:10px 13px;margin-bottom:14px;font-size:12px;color:var(--accent-dark)">
+          <strong>🚚 Spedizione diretta</strong> — il prodotto arriva direttamente dal fornitore originale al tuo indirizzo, con le sue tempistiche e garanzie.
+        </div>
+        <div class="frow">
+          <div class="fg"><label class="flabel">Nome destinatario</label><input class="finput" id="f-nome" placeholder="Mario"></div>
+          <div class="fg"><label class="flabel">Cognome</label><input class="finput" id="f-cognome" placeholder="Rossi"></div>
+        </div>
+        <div class="fg"><label class="flabel">Indirizzo</label><input class="finput" id="f-addr" placeholder="Via Roma 1"></div>
+        <div class="frow">
+          <div class="fg"><label class="flabel">Città</label><input class="finput" id="f-city" placeholder="Milano"></div>
+          <div class="fg"><label class="flabel">CAP</label><input class="finput" id="f-cap" placeholder="20121"></div>
+        </div>
+        <div class="fg">
+          <label class="flabel">Paese</label>
+          <select class="finput" id="f-paese">
+            <option value="IT">🇮🇹 Italia</option><option value="DE">🇩🇪 Germania</option>
+            <option value="FR">🇫🇷 Francia</option><option value="ES">🇪🇸 Spagna</option>
+            <option value="NL">🇳🇱 Paesi Bassi</option><option value="CH">🇨🇭 Svizzera</option>
+            <option value="GB">🇬🇧 UK</option><option value="US">🇺🇸 USA</option>
+            <option value="other">🌍 Altro</option>
+          </select>
+        </div>
+        <div class="fg"><label class="flabel">Email (notifiche ordine)</label><input class="finput" id="f-email" placeholder="mario@email.com" type="email"></div>
+      </div>
+
+      <!-- SPEDIZIONE -->
+      <div class="co-card">
+        <div class="co-title">🚚 Opzione di spedizione</div>
+        <div class="ship-option selected" id="ship-direct" onclick="selectShip('direct')">
+          <div class="ship-radio"><div class="ship-radio-dot"></div></div>
+          <div class="ship-info">
+            <div class="ship-name">Spedizione diretta dal fornitore</div>
+            <div class="ship-desc">Il prodotto arriva direttamente da Amazon, Zalando ecc. Tempi e garanzie del fornitore originale.</div>
+          </div>
+          <div class="ship-price free">GRATIS</div>
+        </div>
+        <div class="ship-option" id="ship-cs" onclick="selectShip('cs')">
+          <div class="ship-radio"><div class="ship-radio-dot"></div></div>
+          <div class="ship-info">
+            <div class="ship-name">Spedizione tramite CryptoShop</div>
+            <div class="ship-desc">Riceviamo il pacco, controlliamo l'integrità e rispediamo a te con packaging neutro. Ideale per anonimato o verifica qualità.</div>
+          </div>
+          <div class="ship-price paid">+€19.90</div>
+        </div>
+        <div class="ship-option" id="ship-consolidate" onclick="selectShip('consolidate')">
+          <div class="ship-radio"><div class="ship-radio-dot"></div></div>
+          <div class="ship-info">
+            <div class="ship-name">Consolidamento ordini multipli</div>
+            <div class="ship-desc">Compri da più siti? Aspettiamo tutti i pacchi, li imballiamo insieme e spediamo un unico pacco. Risparmio su spedizioni multiple.</div>
+          </div>
+          <div class="ship-price paid">+€24.90</div>
+        </div>
+      </div>
+
+      <!-- REGALO -->
+      <div class="co-card">
+        <div class="gift-toggle-row" onclick="toggleGift()">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:20px">🎁</span>
+            <div>
+              <div style="font-weight:700;font-size:14px">Spedizione regalo</div>
+              <div style="font-size:12px;color:var(--muted)">Niente scontrino con prezzo — perfetto per regali</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;font-weight:700;color:var(--accent)">GRATIS</span>
+            <div class="toggle-track" id="gift-track"><div class="toggle-knob"></div></div>
+          </div>
+        </div>
+        <div id="gift-panel" class="hidden" style="margin-top:12px;padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border)">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px">✓ Scontrino con prezzo rimosso &nbsp;·&nbsp; ✓ Packaging neutro &nbsp;·&nbsp; ✓ Bigliettino personalizzato</div>
+          <div class="fg"><label class="flabel">Messaggio regalo</label><textarea class="finput" id="f-gift-msg" rows="2" placeholder="Es: Buon compleanno! Spero ti piaccia 🎉" style="resize:vertical"></textarea></div>
+          <div class="fg"><label class="flabel">Da parte di</label><input class="finput" id="f-gift-from" placeholder="Es: Marco e Sofia"></div>
+          <div style="font-size:11px;color:var(--subtle);margin-top:8px;padding:7px 10px;background:var(--surface);border-radius:7px">ℹ️ Selezioniamo "gift shipping" automaticamente. Se il fornitore non lo supporta ti avvisiamo prima dell'acquisto.</div>
+        </div>
+      </div>
+
+      <!-- METODO PAGAMENTO -->
+      <div class="co-card">
+        <div class="co-title">💳 Metodo di pagamento</div>
+        <!-- CREDITO DISPONIBILE -->
+        <div id="credit-avail-box" class="hidden" style="background:var(--accent-light);border:1px solid rgba(0,200,150,.2);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--accent-dark)">💳 Usa il tuo credito prepagato</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px">Saldo disponibile: <strong id="co-credit-show">€0.00</strong></div>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--accent-dark)">
+              <input type="checkbox" id="use-credit" onchange="renderCheckoutRight()" style="width:16px;height:16px;accent-color:var(--accent)">
+              Usa credito
+            </label>
+          </div>
+        </div>
+        <div id="coin-section">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:500">Oppure paga direttamente in crypto:</div>
+          <div class="coin-grid">
+            <div class="coino active" data-coin="USDC" onclick="selectCoin(this)"><div class="coino-icon">💵</div><div class="coino-name">USDC</div><div class="coino-sub">Stablecoin</div></div>
+            <div class="coino" data-coin="ETH" onclick="selectCoin(this)"><div class="coino-icon">💎</div><div class="coino-name">ETH</div><div class="coino-sub">Ethereum</div></div>
+            <div class="coino" data-coin="BTC" onclick="selectCoin(this)"><div class="coino-icon">₿</div><div class="coino-name">BTC</div><div class="coino-sub">Bitcoin</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLONNA DESTRA: RIEPILOGO -->
+    <div class="co-card" style="position:sticky;top:70px">
+      <div class="co-title">🛍️ Riepilogo e costi</div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+        <div style="font-size:32px" id="co-thumb">🎧</div>
+        <div><div style="font-weight:700;font-size:13px" id="co-name">—</div><div style="font-size:11px;color:var(--muted)" id="co-src">—</div></div>
+      </div>
+      <table class="bdt" id="co-breakdown"></table>
+      <div id="qr-zone" style="display:none">
+        <div class="qr-wrap">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px">Scansiona per pagare</div>
+          <div class="qr-box">📲</div>
+          <div style="font-size:11px;color:var(--muted)">oppure invia a questo indirizzo</div>
+          <div class="waddr">0x742d35Cc6634C0532925a3b8D4C9E3D9B2F4a891</div>
+          <div class="timer-txt">⏱ Scade in <span id="cdtimer">14:59</span></div>
+        </div>
+      </div>
+      <button class="pay-btn" id="pay-btn" onclick="startPayment()">🔒 Procedi al pagamento</button>
+      <div style="text-align:center;margin-top:9px;font-size:11px;color:var(--subtle)">Pagamento via CoinGate · CASP MiCA · Nessun costo nascosto</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ SUCCESS ═══ -->
+<div id="page-success" class="hidden">
+<div class="main" style="max-width:540px">
+  <div style="text-align:center;padding:50px 0">
+    <div style="font-size:56px;margin-bottom:18px">✅</div>
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;margin-bottom:10px">Pagamento confermato!</h2>
+    <p style="color:var(--muted);margin-bottom:26px">Stiamo acquistando il prodotto per te. Riceverai aggiornamenti via email.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:20px;text-align:left;margin-bottom:24px">
+      <div class="drow"><span class="drow-lbl">ID Ordine</span><span class="drow-val" id="suc-id">—</span></div>
+      <div class="drow"><span class="drow-lbl">Prodotto</span><span class="drow-val" id="suc-name">—</span></div>
+      <div class="drow"><span class="drow-lbl">Pagato</span><span class="drow-val" style="color:var(--brand)" id="suc-amount">—</span></div>
+      <div class="drow"><span class="drow-lbl">Commissione CryptoShop</span><span class="drow-val" style="color:var(--accent)" id="suc-fee">—</span></div>
+      <div class="drow"><span class="drow-lbl">Spedizione</span><span class="drow-val" id="suc-ship">—</span></div>
+      <div class="drow"><span class="drow-lbl">Stato</span><span class="sbadge s-processing">⚡ Acquisto in corso</span></div>
+    </div>
+    <div id="suc-gift-note" class="hidden" style="background:var(--brand-light);border:1px solid rgba(91,60,245,.2);border-radius:11px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--brand)">
+      🎁 <strong>Spedizione regalo attiva</strong> — il pacco arriverà senza scontrino con prezzo.
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="nbtn p" onclick="showPage('orders')" style="padding:10px 20px">Segui ordine</button>
+      <button class="nbtn" onclick="goHome()" style="padding:10px 20px">Continua shopping</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ WALLET / CREDITO PREPAGATO ═══ -->
+<div id="page-wallet" class="hidden">
+<div class="wallet-page">
+  <button onclick="goHome()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:18px">← Torna</button>
+
+  <!-- HERO WALLET -->
+  <div class="wallet-hero">
+    <div style="font-size:13px;opacity:.8">Il tuo credito CryptoShop</div>
+    <div class="wallet-bal-big" id="w-balance">€0.00</div>
+    <div class="wallet-bal-sub">Utilizzabile per acquisti su CryptoShop · Scade dopo 24 mesi di inattività · Non prelevabile</div>
+
+    <div style="margin-top:20px;font-size:13px;font-weight:700;opacity:.9;margin-bottom:8px">Ricarica veloce (USDC → EUR automatico)</div>
+    <div class="recharge-grid">
+      <div class="recharge-btn" onclick="doRecharge(50)">+€50<div style="font-size:10px;opacity:.7">57.47 USDC</div></div>
+      <div class="recharge-btn" onclick="doRecharge(100)">+€100<div style="font-size:10px;opacity:.7">114.94 USDC</div></div>
+      <div class="recharge-btn" onclick="doRecharge(200)">+€200<div style="font-size:10px;opacity:.7;color:#00C896">+€10 bonus</div></div>
+      <div class="recharge-btn" onclick="doRecharge(500)">+€500<div style="font-size:10px;opacity:.7;color:#00C896">+€30 bonus</div></div>
+    </div>
+    <div class="recharge-custom">
+      <input type="number" id="custom-amount" placeholder="Importo personalizzato (€)" min="10" max="2000">
+      <button onclick="doRechargeCustom()">Ricarica →</button>
+    </div>
+  </div>
+
+  <!-- INFO LEGALE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:16px;margin-bottom:20px;font-size:12px;color:var(--muted);line-height:1.7">
+    <strong style="color:var(--text)">ℹ️ Come funziona il credito prepagato</strong><br>
+    Il credito è un anticipo per servizi di intermediazione acquisti su CryptoShop. <strong>Non è un deposito bancario</strong>, non è garantito da fondi di garanzia e non è prelevabile in contanti. Scade dopo 24 mesi di inattività. La conversione USDC→EUR avviene istantaneamente al momento della ricarica tramite CoinGate.
+  </div>
+
+  <!-- STORICO -->
+  <div class="sec-head"><div class="sec-title">Storico movimenti</div></div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden">
+    <table class="history-table" style="width:100%">
+      <thead><tr><th>Data</th><th>Descrizione</th><th>Importo</th><th>Saldo</th></tr></thead>
+      <tbody id="wallet-history"></tbody>
+    </table>
+    <div id="no-history" style="text-align:center;padding:36px;color:var(--muted)">
+      <div style="font-size:36px;margin-bottom:10px">💳</div>
+      <div>Nessun movimento ancora. Ricarica per iniziare!</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PIANI ABBONAMENTO ═══ -->
+<div id="page-plans" class="hidden">
+<div class="main" style="max-width:900px">
+  <div style="text-align:center;margin-bottom:28px">
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;margin-bottom:8px">Piani abbonamento</h2>
+    <p style="color:var(--muted);font-size:15px">Più compri, meno paghi. Commissioni ridotte e credito incluso ogni mese.</p>
+  </div>
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-name">Base</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Per iniziare</div>
+      <div class="plan-price">Gratis<span>/mese</span></div>
+      <ul class="plan-features">
+        <li>Commissione 10% (min €5)</li>
+        <li>Spedizione diretta dal fornitore</li>
+        <li>Opzione regalo</li>
+        <li>Tutti i metodi crypto</li>
+      </ul>
+      <button class="plan-btn outline" onclick="showToast('✅','Piano Base attivo')">Piano attuale</button>
+    </div>
+    <div class="plan-card featured">
+      <div class="plan-popular">⭐ Più popolare</div>
+      <div class="plan-name">Plus</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Per chi compra regolarmente</div>
+      <div class="plan-price">9.90 USDC<span>/mese</span></div>
+      <ul class="plan-features">
+        <li>Commissione ridotta 8%</li>
+        <li>€50 credito prepagato incluso</li>
+        <li>Spedizione CryptoShop inclusa</li>
+        <li>Supporto prioritario</li>
+        <li>Notifiche tracking avanzate</li>
+      </ul>
+      <button class="plan-btn" onclick="subscribePlan('Plus',9.90)">Attiva Plus →</button>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Pro</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Per power user</div>
+      <div class="plan-price">24.90 USDC<span>/mese</span></div>
+      <ul class="plan-features">
+        <li>Commissione ridotta 6%</li>
+        <li>€150 credito prepagato incluso</li>
+        <li>Consolidamento ordini incluso</li>
+        <li>Supporto dedicato</li>
+        <li>Accesso anticipato novità</li>
+        <li>Controllo qualità su ogni pacco</li>
+      </ul>
+      <button class="plan-btn" onclick="subscribePlan('Pro',24.90)">Attiva Pro →</button>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:20px;font-size:13px;color:var(--muted)">
+    Abbonamento pagato mensilmente in USDC · Disdici quando vuoi · Il credito incluso si aggiunge ogni mese al tuo saldo
+  </div>
+</div>
+</div>
+
+<!-- ═══ ORDINI ═══ -->
+<div id="page-orders" class="hidden">
+<div class="main">
+  <h2 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:22px">I miei ordini</h2>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+    <table class="otable" style="width:100%">
+      <thead><tr><th>ID</th><th>Prodotto</th><th>Pagato</th><th>Spedizione</th><th>Data</th><th>Stato</th></tr></thead>
+      <tbody id="my-orders-body"></tbody>
+    </table>
+    <div id="no-my-orders" class="hidden" style="text-align:center;padding:48px;color:var(--muted)">
+      <div style="font-size:40px;margin-bottom:12px">📭</div>
+      <div style="font-weight:700;margin-bottom:8px">Nessun ordine</div>
+      <button class="nbtn p" onclick="goHome()" style="margin-top:10px;padding:9px 18px">Vai allo shopping</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ ADMIN ═══ -->
+<div id="page-admin" class="hidden">
+<div class="admin-wrap">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700">📊 Dashboard Admin</h2>
+    <button class="nbtn" onclick="goHome()">← Sito</button>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi b"><div class="kpi-label">Ordini totali</div><div class="kpi-value" id="kpi-tot">0</div></div>
+    <div class="kpi w"><div class="kpi-label">Da gestire</div><div class="kpi-value" id="kpi-pend">0</div></div>
+    <div class="kpi g"><div class="kpi-label">Guadagno netto</div><div class="kpi-value" id="kpi-rev">€0</div></div>
+    <div class="kpi"><div class="kpi-label">Volume prodotti</div><div class="kpi-value" id="kpi-vol">€0</div></div>
+  </div>
+  <div class="filter-bar">
+    <button class="fbtn active" onclick="filterAdmin('all',this)">Tutti</button>
+    <button class="fbtn" onclick="filterAdmin('processing',this)">⚡ In acquisto</button>
+    <button class="fbtn" onclick="filterAdmin('shipped',this)">📦 Spediti</button>
+    <button class="fbtn" onclick="filterAdmin('delivered',this)">✅ Consegnati</button>
+  </div>
+  <table class="otable" style="width:100%">
+    <thead><tr><th>ID</th><th>Cliente</th><th>Prodotto</th><th>Pagato</th><th>Commissione</th><th>Spedizione</th><th>Stato</th><th>Azioni</th></tr></thead>
+    <tbody id="admin-body"></tbody>
+  </table>
+  <div id="no-admin" class="hidden" style="text-align:center;padding:48px;color:var(--muted)"><div style="font-size:40px;margin-bottom:12px">📋</div><div>Nessun ordine ancora</div></div>
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-ov hidden" id="modal-ov" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="modal-title">Dettaglio</div><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+
+<!-- ═══ PAY NOW — PAGA IN NEGOZIO ═══ -->
+<div id="page-paynow" class="hidden">
+<div class="main" style="max-width:680px">
+  <button onclick="goHome()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:16px">← Torna</button>
+  <h2 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px">📲 Paga in negozio</h2>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:22px">Usa il tuo credito CryptoShop per pagare in qualsiasi negozio fisico. Il negoziante riceve il pagamento istantaneamente.</p>
+
+  <div style="background:var(--accent-light);border:1px solid rgba(0,200,150,.2);border-radius:11px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+    <span style="font-size:28px">💳</span>
+    <div>
+      <div style="font-weight:700;color:var(--accent-dark)">Saldo disponibile</div>
+      <div style="font-size:22px;font-weight:800;color:var(--accent-dark)" id="pn-balance">€0.00</div>
+    </div>
+    <button class="nbtn p" onclick="showPage('wallet')" style="margin-left:auto;padding:8px 14px;font-size:13px">Ricarica</button>
+  </div>
+
+  <!-- STEP 1: importo -->
+  <div class="co-card" id="pn-step1">
+    <div class="co-title">1️⃣ Inserisci l'importo da pagare</div>
+    <div class="amount-display" id="pn-amount-display">€0.00</div>
+    <div class="numpad" id="numpad"></div>
+    <button class="pay-btn" style="margin-top:16px" onclick="pnNext(1)">Continua →</button>
+  </div>
+
+  <!-- STEP 2: coordinate negoziante -->
+  <div class="co-card hidden" id="pn-step2">
+    <div class="co-title">2️⃣ Come vuoi pagare il negoziante?</div>
+    <div class="pay-method-grid">
+      <div class="pay-method active" data-method="paypal" onclick="selectPayMethod(this)">
+        <div class="pay-method-icon">🅿️</div>
+        <div class="pay-method-name">PayPal</div>
+        <div class="pay-method-sub">Istantaneo</div>
+      </div>
+      <div class="pay-method" data-method="iban" onclick="selectPayMethod(this)">
+        <div class="pay-method-icon">🏦</div>
+        <div class="pay-method-name">Bonifico SEPA</div>
+        <div class="pay-method-sub">1-24 ore</div>
+      </div>
+      <div class="pay-method" data-method="satispay" onclick="selectPayMethod(this)">
+        <div class="pay-method-icon">🔴</div>
+        <div class="pay-method-name">Satispay</div>
+        <div class="pay-method-sub">Istantaneo · IT</div>
+      </div>
+      <div class="pay-method" data-method="qr" onclick="selectPayMethod(this)">
+        <div class="pay-method-icon">📲</div>
+        <div class="pay-method-name">QR Code</div>
+        <div class="pay-method-sub">Il negozio scansiona</div>
+      </div>
+    </div>
+
+    <!-- input dinamico -->
+    <div id="method-input" style="margin-top:12px">
+      <div class="fg"><label class="flabel" id="method-label">Email PayPal del negoziante</label>
+        <input class="finput" id="pn-dest" placeholder="negozio@email.com"></div>
+    </div>
+
+    <div class="fg" style="margin-top:10px">
+      <label class="flabel">Nome negozio (opzionale, per la ricevuta)</label>
+      <input class="finput" id="pn-store-name" placeholder="Es: Profumeria Rossi">
+    </div>
+
+    <div style="background:var(--surface2);border-radius:9px;padding:12px 14px;margin:12px 0;font-size:13px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--muted)">Importo</span><strong id="pn-recap-amount">€0.00</strong></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--muted)">Fee servizio (1.5%)</span><strong id="pn-recap-fee">€0.00</strong></div>
+      <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:8px;margin-top:5px"><span style="font-weight:700">Totale dal tuo credito</span><strong id="pn-recap-total" style="color:var(--brand)">€0.00</strong></div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button class="nbtn" onclick="pnBack()">← Indietro</button>
+      <button class="pay-btn" onclick="pnNext(2)" style="flex:1">Conferma pagamento →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: QR / conferma -->
+  <div class="co-card hidden" id="pn-step3">
+    <div class="co-title" id="pn-step3-title">3️⃣ Mostra al negoziante</div>
+    <div id="pn-step3-content"></div>
+    <button class="nbtn p" onclick="goHome()" style="width:100%;margin-top:14px;padding:12px">Fatto ✓</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ STORES — NEGOZI CONVENZIONATI ═══ -->
+<div id="page-stores" class="hidden">
+<div class="main">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px">🏪 Negozi convenzionati</h2>
+      <p style="color:var(--muted);font-size:14px">Negozi fisici e online che accettano pagamenti tramite CryptoShop</p>
+    </div>
+    <button class="nbtn p" onclick="showPage('merchant')" style="white-space:nowrap">Sei un negoziante? →</button>
+  </div>
+
+  <!-- FILTRI CATEGORIA -->
+  <div class="filter-bar" style="margin-bottom:16px">
+    <button class="fbtn active" onclick="filterStores('all',this)">Tutti</button>
+    <button class="fbtn" onclick="filterStores('moda',this)">👗 Moda</button>
+    <button class="fbtn" onclick="filterStores('beauty',this)">🧴 Beauty</button>
+    <button class="fbtn" onclick="filterStores('tech',this)">💻 Tech</button>
+    <button class="fbtn" onclick="filterStores('food',this)">🍕 Food</button>
+    <button class="fbtn" onclick="filterStores('casa',this)">🏠 Casa</button>
+    <button class="fbtn" onclick="filterStores('online',this)">🌐 Solo online</button>
+  </div>
+
+  <!-- MAPPA PLACEHOLDER -->
+  <div class="map-placeholder">
+    🗺️ <span style="font-size:14px;color:var(--muted);margin-left:12px">Mappa negozi (integrazione Google Maps in produzione)</span>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-title" id="stores-title">Tutti i negozi partner</div>
+    <span style="font-size:13px;color:var(--muted)" id="stores-count">0 negozi</span>
+  </div>
+  <div class="store-grid" id="store-grid"></div>
+</div>
+</div>
+
+<!-- ═══ MERCHANT — AREA NEGOZIANTI ═══ -->
+<div id="page-merchant" class="hidden">
+<div class="main" style="max-width:860px">
+  <button onclick="showPage('stores')" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:16px">← Torna ai negozi</button>
+
+  <!-- HERO MERCHANT -->
+  <div style="background:linear-gradient(135deg,var(--brand) 0%,var(--accent-dark) 100%);border-radius:16px;padding:32px;color:#fff;margin-bottom:24px;text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">🏪</div>
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;margin-bottom:8px">Porta i clienti crypto nel tuo negozio</h2>
+    <p style="opacity:.85;max-width:500px;margin:0 auto;font-size:15px">Registra il tuo negozio su CryptoShop e raggiungi migliaia di clienti con crypto pronti a spendere. Online, in negozio fisico, o entrambi.</p>
+  </div>
+
+  <!-- VANTAGGI -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px">
+    <div class="co-card" style="text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">📈</div>
+      <div style="font-weight:700;margin-bottom:4px">Nuovi clienti</div>
+      <div style="font-size:12px;color:var(--muted)">Raggiungi i detentori di crypto — un target ad alto potere d'acquisto che non usi ancora</div>
+    </div>
+    <div class="co-card" style="text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">💶</div>
+      <div style="font-weight:700;margin-bottom:4px">Ricevi in EUR</div>
+      <div style="font-size:12px;color:var(--muted)">Non devi gestire crypto. Ricevi sempre in euro su PayPal, IBAN o Satispay come usi già</div>
+    </div>
+    <div class="co-card" style="text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">🎯</div>
+      <div style="font-weight:700;margin-bottom:4px">Visibilità gratuita</div>
+      <div style="font-size:12px;color:var(--muted)">Appari nella directory e nella mappa. Puoi aggiungere offerte esclusive per attirare ancora di più</div>
+    </div>
+  </div>
+
+  <!-- PIANI MERCHANT -->
+  <div class="sec-title" style="margin-bottom:16px">Scegli il tuo piano</div>
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-name">Listing Base</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Per iniziare</div>
+      <div class="plan-price">Gratis<span>/mese</span></div>
+      <ul class="plan-features">
+        <li>Profilo nella directory</li>
+        <li>Accetti pagamenti CryptoShop</li>
+        <li>Commissione 2% sul transato</li>
+        <li>Supporto base</li>
+      </ul>
+      <button class="plan-btn outline" onclick="registerMerchant('Base')">Registrati gratis →</button>
+    </div>
+    <div class="plan-card featured">
+      <div class="plan-popular">⭐ Più scelto</div>
+      <div class="plan-name">Sponsor</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Massima visibilità</div>
+      <div class="plan-price">29 USDC<span>/mese</span></div>
+      <ul class="plan-features">
+        <li>In cima alla directory</li>
+        <li>Badge "Sponsor" in evidenza</li>
+        <li>Offerta esclusiva per clienti CS</li>
+        <li>Commissione ridotta 1%</li>
+        <li>Statistiche clienti e transazioni</li>
+        <li>QR code personalizzato</li>
+      </ul>
+      <button class="plan-btn" onclick="registerMerchant('Sponsor')">Attiva Sponsor →</button>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Enterprise</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Catene e franchise</div>
+      <div class="plan-price">Su misura<span></span></div>
+      <ul class="plan-features">
+        <li>Più punti vendita</li>
+        <li>Integrazione API nel tuo POS</li>
+        <li>Commissione negoziata</li>
+        <li>Account manager dedicato</li>
+        <li>Report mensili dettagliati</li>
+      </ul>
+      <button class="plan-btn outline" onclick="showToast('📧','Contattaci: business@cryptoshop.io')">Contattaci →</button>
+    </div>
+  </div>
+
+  <!-- FORM REGISTRAZIONE -->
+  <div class="co-card" id="merchant-form" style="margin-top:24px">
+    <div class="co-title">📋 Registra il tuo negozio</div>
+    <div class="frow">
+      <div class="fg"><label class="flabel">Nome negozio</label><input class="finput" id="m-name" placeholder="Es: Profumeria Rossi"></div>
+      <div class="fg"><label class="flabel">Categoria</label>
+        <select class="finput" id="m-cat">
+          <option value="moda">👗 Moda e abbigliamento</option>
+          <option value="beauty">🧴 Beauty e cosmesi</option>
+          <option value="tech">💻 Tecnologia</option>
+          <option value="food">🍕 Food e ristorante</option>
+          <option value="casa">🏠 Casa e arredamento</option>
+          <option value="sport">🚲 Sport</option>
+          <option value="altro">🛍️ Altro</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="flabel">Email</label><input class="finput" id="m-email" placeholder="negozio@email.com" type="email"></div>
+      <div class="fg"><label class="flabel">Telefono</label><input class="finput" id="m-phone" placeholder="+39 02 1234567"></div>
+    </div>
+    <div class="fg"><label class="flabel">Indirizzo (per negozio fisico)</label><input class="finput" id="m-addr" placeholder="Via Roma 1, Milano — lascia vuoto se solo online"></div>
+    <div class="fg"><label class="flabel">Sito web o profilo social</label><input class="finput" id="m-web" placeholder="https://..."></div>
+    <div class="fg"><label class="flabel">Offerta esclusiva per clienti CryptoShop (opzionale)</label><input class="finput" id="m-offer" placeholder="Es: 10% di sconto per chi paga con CryptoShop"></div>
+    <div class="fg"><label class="flabel">Come vuoi ricevere i pagamenti</label>
+      <select class="finput" id="m-receive">
+        <option value="paypal">🅿️ PayPal (email)</option>
+        <option value="iban">🏦 Bonifico SEPA (IBAN)</option>
+        <option value="satispay">🔴 Satispay</option>
+      </select>
+    </div>
+    <div class="fg"><label class="flabel" id="m-coord-label">Email PayPal</label><input class="finput" id="m-coord" placeholder="pagamenti@negozio.it"></div>
+    <button class="pay-btn accent" id="m-submit-btn" onclick="submitMerchant()">Registra il mio negozio →</button>
+  </div>
+</div>
+</div>
+
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span id="t-ico">✅</span><span id="t-msg">—</span></div>
+
+<footer>
+  <strong style="color:var(--accent)">cryptoshop</strong> — Compra qualsiasi cosa nel mondo, paga in crypto<br>
+  <span style="font-size:11px;margin-top:4px;display:block">Pagamenti via CoinGate (CASP MiCA) · Prezzi 100% trasparenti · Nessun costo nascosto</span>
+</footer>
+
+<script>
+/* ─── CONFIG ─── */
+const API = 'http://localhost:3001'; // cambia con URL Railway in produzione
+
+/* ─── PRICING ─── */
+const CS_PCT=0.10,CS_MIN=5,CG_PCT=0.010,FX_PCT=0.0087,BC_FIX=0.30,SEPA_PCT=0.003;
+const RATES={USDC:1/0.87,ETH:1/2341,BTC:1/89200};
+const SHIP_COSTS={direct:0,cs:19.90,consolidate:24.90};
+const SHIP_LABELS={direct:'Diretta dal fornitore',cs:'Tramite CryptoShop (+€19.90)',consolidate:'Consolidamento (+€24.90)'};
+
+function calcPrice(productEur, shipMode='direct'){
+  const p=parseFloat(productEur), sc=SHIP_COSTS[shipMode]||0;
+  const csRaw=p*CS_PCT, csFee=Math.max(csRaw,CS_MIN);
+  const sub=p+csFee+sc;
+  const cg=+(sub*CG_PCT).toFixed(2), fx=+(sub*FX_PCT).toFixed(2);
+  const bc=BC_FIX, sepa=+(sub*SEPA_PCT).toFixed(2);
+  const provTot=+(cg+fx+bc+sepa).toFixed(2);
+  const total=+(sub+provTot).toFixed(2);
+  return {product:+p.toFixed(2),csFee:+csFee.toFixed(2),csMin:csRaw<CS_MIN,
+    shipCost:sc,cg,fx,bc,sepa,provTot,sub:+sub.toFixed(2),total,
+    usdc:+(total*RATES.USDC).toFixed(2),eth:+(total*RATES.ETH).toFixed(6),btc:+(total*RATES.BTC).toFixed(8)};
+}
+
+/* ─── PRODOTTI ─── */
+const PRODUCTS=[
+  {id:1,full:'Sony WH-1000XM5 Cuffie Noise Cancelling',icon:'🎧',src:'amazon.it',price:279,cat:'tech',badge:'Top'},
+  {id:2,full:'iPhone 16 Pro 256GB Titanio Naturale',icon:'📱',src:'apple.com',price:1299,cat:'tech',badge:'Nuovo'},
+  {id:3,full:'Nike Air Max 270 React Uomo EU 42',icon:'👟',src:'zalando.it',price:129,cat:'moda'},
+  {id:4,full:'Apple Watch Series 10 GPS 46mm',icon:'⌚',src:'apple.com',price:449,cat:'tech'},
+  {id:5,full:'PlayStation 5 Slim + DualSense',icon:'🎮',src:'gamestop.it',price:449,cat:'gaming',badge:'Bundle'},
+  {id:6,full:'LG UltraWide 34" QHD IPS 160Hz',icon:'🖥️',src:'unieuro.it',price:699,cat:'tech'},
+  {id:7,full:'Dyson V15 Detect Aspirapolvere',icon:'🌀',src:'dyson.it',price:649,cat:'casa'},
+  {id:8,full:'Nespresso Vertuo Next Macchina Caffè',icon:'☕',src:'nespresso.com',price:129,cat:'casa'},
+  {id:9,full:'The North Face Nuptse 700 Piumino',icon:'🧥',src:'thenorthface.com',price:319,cat:'moda'},
+  {id:10,full:'Nintendo Switch 2 + Mario Kart World',icon:'🕹️',src:'nintendo.it',price:399,cat:'gaming',badge:'Nuovo'},
+  {id:11,full:'Kindle Paperwhite 2024 16GB',icon:'📚',src:'amazon.it',price:149,cat:'libri'},
+  {id:12,full:'Fitbit Charge 6 GPS Fitness Tracker',icon:'⌚',src:'fitbit.com',price:159,cat:'sport'},
+];
+const URL_DEMOS=[
+  {full:'Sony WH-1000XM5 Cuffie Wireless',icon:'🎧',src:'amazon.it',price:279},
+  {full:"Levi's 501 Original Fit Jeans",icon:'👖',src:'levis.com',price:89},
+  {full:'Dyson V15 Detect Aspirapolvere',icon:'🌀',src:'dyson.it',price:649},
+  {full:'Adidas Stan Smith Bianco EU41',icon:'👟',src:'adidas.com',price:95},
+  {full:'LEGO Technic Bugatti Chiron',icon:'🧱',src:'lego.com',price:369},
+];
+
+/* ─── STATE ─── */
+let orders=JSON.parse(localStorage.getItem('cs-orders')||'[]');
+let walletHistory=JSON.parse(localStorage.getItem('cs-wallet-history')||'[]');
+let walletBalance=parseFloat(localStorage.getItem('cs-wallet-bal')||'0');
+let currentOrder=null, selectedCoin='USDC', selectedShip='direct';
+let giftEnabled=false, adminFilter='all', cdInterval=null;
+
+/* ─── WALLET HELPERS ─── */
+function saveWallet(){
+  localStorage.setItem('cs-wallet-bal',walletBalance.toFixed(2));
+  localStorage.setItem('cs-wallet-history',JSON.stringify(walletHistory));
+  updateNavBalance();
+}
+function updateNavBalance(){
+  document.getElementById('nav-bal').textContent='€'+walletBalance.toFixed(2);
+  const box=document.getElementById('credit-avail-box');
+  if(box){
+    box.classList.toggle('hidden',walletBalance<=0);
+    const el=document.getElementById('co-credit-show');
+    if(el) el.textContent='€'+walletBalance.toFixed(2);
+  }
+}
+function addWalletEntry(desc,amount,running){
+  walletHistory.unshift({date:new Date().toLocaleDateString('it-IT'),desc,amount,balance:running});
+  saveWallet();
+}
+
+/* ─── ROUTING ─── */
+function showPage(p){
+  ['home','checkout','success','orders','admin','wallet','plans','stores','paynow','merchant'].forEach(id=>{
+    const el=document.getElementById('page-'+id);
+    if(el) el.classList.toggle('hidden',id!==p);
+  });
+  if(p==='orders')   renderMyOrders();
+  if(p==='admin')    renderAdmin();
+  if(p==='wallet')   renderWallet();
+  if(p==='stores')   renderStores();
+  if(p==='merchant') renderMerchantPanel();
+  window.scrollTo(0,0);
+}
+function goHome(){showPage('home')}
+
+/* ─── LIVE SEARCH ─── */
+let searchTimer = null;
+let lastQuery = '';
+
+function setQ(q){
+  document.getElementById('catQ').value=q;
+  hideSuggestions();
+  doSearch();
+}
+
+function onSearchType(val){
+  clearTimeout(searchTimer);
+  hideSuggestions();
+  if(val.length>=2){
+    searchTimer = setTimeout(()=>fetchSuggestions(val), 300);
+  }
+}
+
+async function fetchSuggestions(q){
+  try {
+    const r = await fetch(`${API}/api/search/suggestions?q=${encodeURIComponent(q)}`);
+    const sugs = await r.json();
+    showSuggestions(sugs, q);
+  } catch(e) {
+    // backend non disponibile — niente suggerimenti
+  }
+}
+
+function showSuggestions(list, q){
+  const box = document.getElementById('suggestions-box');
+  if(!list.length){ hideSuggestions(); return; }
+  box.innerHTML = list.map(s=>`
+    <div class="suggestion-item" onclick="setQ('${s.replace(/'/g,"\\'")}')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--subtle);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      ${s}
+    </div>`).join('');
+  box.classList.remove('hidden');
+}
+function hideSuggestions(){
+  document.getElementById('suggestions-box').classList.add('hidden');
+}
+
+function doSearch(){
+  hideSuggestions();
+  const q = (document.getElementById('catQ').value || document.getElementById('searchLiveQ')?.value || '').trim();
+  if(!q){ closeSearch(); return; }
+  // Sincronizza le due input
+  if(document.getElementById('searchLiveQ')) document.getElementById('searchLiveQ').value = q;
+  document.getElementById('catQ').value = q;
+  showSearchResults(q);
+}
+
+async function showSearchResults(q){
+  // Mostra pagina risultati
+  document.getElementById('search-results-page').classList.remove('hidden');
+  document.querySelector('.main').classList.add('hidden');
+  lastQuery = q;
+
+  const meta = document.getElementById('result-meta');
+  const container = document.getElementById('results-container');
+
+  // Scheletro di caricamento
+  meta.innerHTML = `<span>Ricerca in corso per <strong>"${q}"</strong>…</span>`;
+  container.innerHTML = '<div class="loading-grid">' +
+    Array(8).fill('<div class="skeleton"></div>').join('') + '</div>';
+
+  try {
+    const res = await fetch(`${API}/api/search?q=${encodeURIComponent(q)}&limit=16`);
+    const data = await res.json();
+    renderSearchResults(data);
+  } catch(e) {
+    // Backend non disponibile — usa dati locali
+    console.warn('Backend non raggiungibile, uso dati locali');
+    const local = PRODUCTS.filter(p=>p.full.toLowerCase().includes(q.toLowerCase())||p.cat.toLowerCase().includes(q.toLowerCase()));
+    if(local.length){
+      renderLocalResults(local, q);
+    } else {
+      container.innerHTML = `<div style="text-align:center;padding:48px;color:var(--muted)">
+        <div style="font-size:40px;margin-bottom:12px">🔍</div>
+        <div style="font-weight:700;margin-bottom:8px">Nessun risultato per "${q}"</div>
+        <div style="margin-bottom:16px">Prova con un termine diverso oppure incolla il link diretto del prodotto</div>
+        <button class="nbtn p" onclick="switchMode('url')" style="padding:10px 18px">Incolla link →</button>
+      </div>`;
+      meta.innerHTML = '';
+    }
+  }
+}
+
+function renderSearchResults(data){
+  const meta = document.getElementById('result-meta');
+  const container = document.getElementById('results-container');
+  const sourceLabel = data.source==='serpapi'?'Google Shopping':data.source==='scraping'?'Web':'Catalogo demo';
+
+  meta.innerHTML = `
+    <span><strong>${data.results.length}</strong> risultati per "<strong>${data.query}</strong>"</span>
+    <span class="result-source">${sourceLabel}</span>
+    ${data.cached?'<span style="font-size:11px;color:var(--subtle)">· cache</span>':''}`;
+
+  if(!data.results.length){
+    container.innerHTML = `<div style="text-align:center;padding:48px;color:var(--muted)">
+      <div style="font-size:40px;margin-bottom:12px">🔍</div>
+      <div style="font-weight:700;margin-bottom:8px">Nessun risultato</div>
+      <button class="nbtn p" onclick="switchMode('url')" style="padding:10px 18px">Incolla link diretto →</button>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = '<div class="result-grid">' +
+    data.results.map(r => resultCardHTML(r)).join('') + '</div>';
+}
+
+function renderLocalResults(list, q){
+  const meta = document.getElementById('result-meta');
+  const container = document.getElementById('results-container');
+  meta.innerHTML = `<span><strong>${list.length}</strong> risultati per "<strong>${q}</strong>"</span><span class="result-source">Catalogo</span>`;
+  container.innerHTML = '<div class="result-grid">' +
+    list.map(p => {
+      const c = calcPrice(p.price);
+      return resultCardHTML({
+        id: p.id, name: p.full, priceEur: p.price,
+        store: p.src, image: p.icon, totalUsdc: c.usdc,
+        commissionEur: c.csFee, totalEur: c.total,
+      });
+    }).join('') + '</div>';
+}
+
+function resultCardHTML(r){
+  const thumb = r.image && r.image.startsWith('http')
+    ? `<img src="${r.image}" alt="" onerror="this.parentNode.innerHTML='🛍️'">`
+    : `<span style="font-size:40px">${r.image||'🛍️'}</span>`;
+  const stars = r.rating ? '⭐'.repeat(Math.round(r.rating)) + ` ${r.rating}` : '';
+  const reviews = r.reviews ? `(${(r.reviews/1000).toFixed(r.reviews>1000?1:0)}k)` : '';
+  return `<div class="result-card" onclick='buyResult(${JSON.stringify(r).replace(/'/g,"&#39;")})'>
+    <div class="result-img">${thumb}</div>
+    <div class="result-body">
+      <div class="result-name">${r.name}</div>
+      <div class="result-store">${r.store||''}${stars?' · '+stars+' '+reviews:''}</div>
+      <div class="result-bottom">
+        <div class="result-original">€${(r.priceEur||0).toFixed(2)} + comm. €${(r.commissionEur||0).toFixed(2)}</div>
+        <div class="result-crypto">${r.totalUsdc||'—'} USDC</div>
+        <div class="result-commission">tutto incluso</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buyResult(r){
+  currentOrder = {
+    icon: r.image && !r.image.startsWith('http') ? r.image : '🛍️',
+    name: r.name,
+    src:  r.store,
+    priceEur: r.priceEur,
+    url:  r.url,
+  };
+  openCheckout();
+}
+
+function closeSearch(){
+  document.getElementById('search-results-page').classList.add('hidden');
+  document.querySelector('.main').classList.remove('hidden');
+  document.getElementById('catQ').value='';
+  if(document.getElementById('searchLiveQ')) document.getElementById('searchLiveQ').value='';
+}
+
+function filterCat(cat){
+  const catNames={tech:'Tech e Elettronica',moda:'Moda',casa:'Casa',gaming:'Gaming',beauty:'Beauty',sport:'Sport',libri:'Libri',auto:'Auto',viaggi:'Viaggi'};
+  setQ(catNames[cat]||cat);
+}
+
+function doNavSearch(){
+  const q=document.getElementById('navQ').value;
+  if(q.includes('http')||q.includes('www')){switchMode('url');document.getElementById('urlInput').value=q;analyzeUrl();}
+  else{switchMode('cat');document.getElementById('catQ').value=q;doSearch();}
+  document.getElementById('navQ').value='';
+}
+function switchMode(m){
+  document.getElementById('tab-cat').classList.toggle('active',m==='cat');
+  document.getElementById('tab-url').classList.toggle('active',m==='url');
+  document.getElementById('cat-mode').classList.toggle('hidden',m!=='cat');
+  document.getElementById('url-mode').classList.toggle('hidden',m!=='url');
+}
+
+/* ─── RENDER PRODUCTS ─── */
+function renderProds(list){
+  const g=document.getElementById('prod-grid');
+  if(!list.length){g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">🔍</div><div>Nessun risultato</div></div>';return;}
+  g.innerHTML=list.map(p=>{
+    const c=calcPrice(p.price);
+    return`<div class="prod-card" onclick="buyProd(${p.id})">
+      <div class="prod-img">${p.icon}</div>
+      <div class="prod-body">
+        <div style="display:flex;justify-content:space-between;gap:5px">
+          <div class="prod-name">${p.full}</div>
+          ${p.badge?`<div class="prod-badge" style="flex-shrink:0">${p.badge}</div>`:''}
+        </div>
+        <div class="prod-src">${p.src}</div>
+        <div class="prod-bottom">
+          <div><div class="prod-fiat">€${p.price} + commissioni</div><div class="prod-crypto">${c.usdc} USDC</div></div>
+          <button class="buy-btn" onclick="event.stopPropagation();buyProd(${p.id})">Acquista</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ─── URL ANALYZER ─── */
+let urlTimer=null;
+function onUrlType(v){clearTimeout(urlTimer);if(v.length>8)urlTimer=setTimeout(analyzeUrl,1500);}
+function analyzeUrl(){
+  const url=document.getElementById('urlInput').value.trim();
+  if(!url)return;
+  document.getElementById('url-result').innerHTML='';
+  document.getElementById('url-loading').classList.remove('hidden');
+  setTimeout(()=>{
+    document.getElementById('url-loading').classList.add('hidden');
+    const d=URL_DEMOS[Math.floor(Math.random()*URL_DEMOS.length)];
+    showUrlPreview(d);
+  },1400);
+}
+function showUrlPreview(d){
+  const c=calcPrice(d.price,selectedShip);
+  document.getElementById('url-result').innerHTML=`
+    <div class="preview-card">
+      <div class="prev-head">
+        <div class="prev-thumb">${d.icon}</div>
+        <div><div class="prev-name">${d.full}</div><div class="prev-src">da ${d.src}</div><div class="prev-avail">✓ Disponibile</div></div>
+      </div>
+      ${buildBD(c,'USDC')}
+      <button class="pay-btn" onclick='buyFromUrl(${JSON.stringify(d).replace(/"/g,"&quot;")})'>🔒 Acquista — ${c.usdc} USDC</button>
+    </div>`;
+}
+
+/* ─── BREAKDOWN HTML ─── */
+function buildBD(c,coin){
+  const amt=coin==='USDC'?c.usdc+' USDC':coin==='ETH'?c.eth+' ETH':c.btc+' BTC';
+  let shipRow='';
+  if(c.shipCost>0) shipRow=`<tr><td class="bd-m">Spedizione (${SHIP_LABELS[selectedShip]})</td><td class="bd-you">+€${c.shipCost.toFixed(2)}</td></tr>`;
+  return`<table class="bdt" style="width:100%">
+    <tr><td class="bd-sec" colspan="2">Prezzo prodotto</td></tr>
+    <tr><td class="bd-m">Prezzo originale fornitore</td><td>€${c.product.toFixed(2)}</td></tr>
+    <tr><td class="bd-sec" colspan="2">Commissione CryptoShop</td></tr>
+    <tr><td class="bd-m">Servizio intermediazione (10%${c.csMin?', min €'+CS_MIN:''})<span class="bd-note">Il nostro compenso per acquistare per te</span></td><td class="bd-you">€${c.csFee.toFixed(2)}</td></tr>
+    ${shipRow}
+    <tr><td class="bd-sec" colspan="2">Fee provider (costi di sistema)</td></tr>
+    <tr><td class="bd-m">Gateway CoinGate (1%)<span class="bd-note">Processore pagamenti crypto autorizzato MiCA</span></td><td class="bd-prov">€${c.cg.toFixed(2)}</td></tr>
+    <tr><td class="bd-m">Conversione USD/EUR (spread)<span class="bd-note">Costo cambio tra crypto e euro</span></td><td class="bd-prov">€${c.fx.toFixed(2)}</td></tr>
+    <tr><td class="bd-m">Fee rete blockchain<span class="bd-note">Gas per transazione on-chain</span></td><td class="bd-prov">€${c.bc.toFixed(2)}</td></tr>
+    <tr><td class="bd-m">Liquidazione bancaria SEPA<span class="bd-note">Trasferimento verso conto bancario</span></td><td class="bd-prov">€${c.sepa.toFixed(2)}</td></tr>
+    <tr class="bd-div bd-tot"><td>Totale da pagare</td><td>€${c.total.toFixed(2)}<br><span style="color:var(--brand);font-size:16px">${amt}</span></td></tr>
+  </table>`;
+}
+
+/* ─── SPEDIZIONE ─── */
+function selectShip(mode){
+  selectedShip=mode;
+  ['direct','cs','consolidate'].forEach(m=>{
+    document.getElementById('ship-'+m).classList.toggle('selected',m===mode);
+  });
+  renderCheckoutRight();
+}
+
+/* ─── REGALO ─── */
+function toggleGift(){
+  giftEnabled=!giftEnabled;
+  document.getElementById('gift-track').classList.toggle('on',giftEnabled);
+  document.getElementById('gift-panel').classList.toggle('hidden',!giftEnabled);
+}
+
+/* ─── COIN ─── */
+function selectCoin(el){
+  document.querySelectorAll('.coino').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active'); selectedCoin=el.dataset.coin;
+  renderCheckoutRight();
+}
+
+/* ─── CHECKOUT ─── */
+function buyProd(id){
+  const p=PRODUCTS.find(x=>x.id===id);
+  if(!p)return;
+  currentOrder={icon:p.icon,name:p.full,src:p.src,priceEur:p.price};
+  openCheckout();
+}
+function buyFromUrl(d){
+  currentOrder={icon:d.icon,name:d.full,src:d.src,priceEur:d.price};
+  openCheckout();
+}
+function openCheckout(){
+  document.getElementById('co-thumb').textContent=currentOrder.icon;
+  document.getElementById('co-name').textContent=currentOrder.name;
+  document.getElementById('co-src').textContent=currentOrder.src;
+  updateNavBalance();
+  renderCheckoutRight();
+  document.getElementById('qr-zone').style.display='none';
+  document.getElementById('pay-btn').style.display='flex';
+  document.getElementById('pay-btn').textContent='🔒 Procedi al pagamento';
+  showPage('checkout');
+}
+function renderCheckoutRight(){
+  if(!currentOrder)return;
+  const useCredit=document.getElementById('use-credit')?.checked && walletBalance>0;
+  const c=calcPrice(currentOrder.priceEur,selectedShip);
+  const coin=useCredit?'CREDIT':selectedCoin;
+
+  let bdHTML=buildBD(c,selectedCoin);
+  if(useCredit){
+    const remaining=Math.max(0,walletBalance-c.total);
+    const shortfall=Math.max(0,c.total-walletBalance);
+    bdHTML+=`<div style="background:var(--accent-light);border-radius:9px;padding:10px 12px;margin-top:10px;font-size:12px;color:var(--accent-dark)">
+      <strong>💳 Pagamento con credito</strong><br>
+      Saldo usato: €${Math.min(walletBalance,c.total).toFixed(2)}<br>
+      ${shortfall>0?`<span style="color:var(--danger)">Saldo insufficiente di €${shortfall.toFixed(2)} — aggiungi credito o paga in crypto</span>`:`Saldo residuo dopo: €${remaining.toFixed(2)}`}
+    </div>`;
+  }
+  // sostituisce il vecchio breakdown
+  const old=document.getElementById('co-breakdown');
+  if(old) old.innerHTML=buildBD(c,selectedCoin).replace(/<table[^>]*>|<\/table>/g,'');
+}
+
+/* ─── PAYMENT ─── */
+function startPayment(){
+  if(!document.getElementById('f-nome').value||!document.getElementById('f-email').value||!document.getElementById('f-addr').value){
+    showToast('⚠️','Compila nome, email e indirizzo');return;
+  }
+  const useCredit=document.getElementById('use-credit')?.checked && walletBalance>0;
+  const c=calcPrice(currentOrder.priceEur,selectedShip);
+  if(useCredit && walletBalance>=c.total){
+    // Paga tutto con credito
+    walletBalance=+(walletBalance-c.total).toFixed(2);
+    addWalletEntry('Acquisto: '+currentOrder.name,-c.total,walletBalance);
+    finalizeOrder(c,'CREDIT','€'+c.total.toFixed(2)+' (credito)');
+  } else {
+    document.getElementById('pay-btn').style.display='none';
+    document.getElementById('qr-zone').style.display='block';
+    setTimeout(()=>{
+      const amt=selectedCoin==='USDC'?c.usdc+' USDC':selectedCoin==='ETH'?c.eth+' ETH':c.btc+' BTC';
+      finalizeOrder(c,selectedCoin,amt);
+    },4000);
+    startCountdown();
+  }
+}
+function startCountdown(){
+  clearInterval(cdInterval);let s=15*60;
+  cdInterval=setInterval(()=>{
+    s--;const m=Math.floor(s/60);
+    document.getElementById('cdtimer').textContent=m+':'+(s%60).toString().padStart(2,'0');
+    if(s<=0)clearInterval(cdInterval);
+  },1000);
+}
+function finalizeOrder(c,coin,amountStr){
+  clearInterval(cdInterval);
+  const oid='CS-'+Math.random().toString(36).slice(2,10).toUpperCase();
+  const order={
+    id:oid,icon:currentOrder.icon,name:currentOrder.name,src:currentOrder.src,
+    priceEur:currentOrder.priceEur,csFee:c.csFee,provFee:c.provTot,
+    totalEur:c.total,shipMode:selectedShip,shipCost:c.shipCost,
+    cryptoAmount:amountStr,coin,
+    customer:document.getElementById('f-nome').value+' '+document.getElementById('f-cognome').value,
+    email:document.getElementById('f-email').value,
+    address:document.getElementById('f-addr').value+', '+document.getElementById('f-city').value+' '+document.getElementById('f-cap').value+' ('+document.getElementById('f-paese').value+')',
+    isGift:giftEnabled,
+    giftMsg:giftEnabled?document.getElementById('f-gift-msg').value:'',
+    giftFrom:giftEnabled?document.getElementById('f-gift-from').value:'',
+    date:new Date().toLocaleDateString('it-IT'),status:'processing'
+  };
+  orders.unshift(order);localStorage.setItem('cs-orders',JSON.stringify(orders));
+  document.getElementById('suc-id').textContent=oid;
+  document.getElementById('suc-name').textContent=order.name;
+  document.getElementById('suc-amount').textContent=amountStr;
+  document.getElementById('suc-fee').textContent='€'+c.csFee.toFixed(2);
+  document.getElementById('suc-ship').textContent=SHIP_LABELS[selectedShip];
+  document.getElementById('suc-gift-note').classList.toggle('hidden',!giftEnabled);
+  showToast('✅','Pagamento confermato!');
+  setTimeout(()=>showPage('success'),600);
+}
+
+/* ─── WALLET PAGE ─── */
+function renderWallet(){
+  document.getElementById('w-balance').textContent='€'+walletBalance.toFixed(2);
+  const tbody=document.getElementById('wallet-history');
+  const noH=document.getElementById('no-history');
+  if(!walletHistory.length){tbody.innerHTML='';noH.style.display='block';return;}
+  noH.style.display='none';
+  tbody.innerHTML=walletHistory.map(h=>`<tr>
+    <td style="color:var(--muted);font-size:12px">${h.date}</td>
+    <td>${h.desc}</td>
+    <td class="${h.amount>0?'hist-in':'hist-out'}">${h.amount>0?'+':''}€${Math.abs(h.amount).toFixed(2)}</td>
+    <td style="font-weight:600">€${h.balance.toFixed(2)}</td>
+  </tr>`).join('');
+}
+function doRecharge(amount){
+  // bonus su importi alti
+  const bonus=amount>=500?30:amount>=200?10:0;
+  const total=amount+bonus;
+  walletBalance=+(walletBalance+total).toFixed(2);
+  if(bonus>0) addWalletEntry(`Ricarica €${amount} + bonus €${bonus}`,total,walletBalance);
+  else addWalletEntry(`Ricarica €${amount}`,amount,walletBalance);
+  renderWallet();
+  updateNavBalance();
+  showToast('💳',`Ricaricato €${total}${bonus>0?' (incluso bonus €'+bonus+')':''}!`);
+}
+function doRechargeCustom(){
+  const v=parseFloat(document.getElementById('custom-amount').value);
+  if(!v||v<10){showToast('⚠️','Importo minimo €10');return;}
+  if(v>2000){showToast('⚠️','Importo massimo €2000');return;}
+  doRecharge(v);
+  document.getElementById('custom-amount').value='';
+}
+
+/* ─── PIANI ─── */
+function subscribePlan(name,price){
+  if(walletBalance<price){showToast('⚠️',`Saldo insufficiente. Ricarica almeno €${price} USDC`);showPage('wallet');return;}
+  walletBalance=+(walletBalance-price).toFixed(2);
+  const bonus=name==='Plus'?50:150;
+  walletBalance=+(walletBalance+bonus).toFixed(2);
+  addWalletEntry(`Abbonamento ${name} (-€${price} + €${bonus} credito)`,bonus-price,walletBalance);
+  saveWallet();
+  showToast('⭐',`Piano ${name} attivato! Aggiunti €${bonus} di credito.`);
+  showPage('wallet');
+}
+
+/* ─── MY ORDERS ─── */
+const SL={pending:'s-pending',paid:'s-paid',processing:'s-processing',shipped:'s-shipped',delivered:'s-delivered'};
+const SN={pending:'In attesa',paid:'Pagato',processing:'⚡ In acquisto',shipped:'📦 Spedito',delivered:'✅ Consegnato'};
+function renderMyOrders(){
+  const b=document.getElementById('my-orders-body');
+  document.getElementById('no-my-orders').classList.toggle('hidden',orders.length>0);
+  b.innerHTML=orders.map(o=>`<tr>
+    <td style="font-weight:700;font-size:12px">${o.id}</td>
+    <td><div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">${o.icon}</span><div><div style="font-weight:700;font-size:12px">${o.name}</div><div style="font-size:11px;color:var(--muted)">${o.src}</div></div></div></td>
+    <td><div style="font-weight:700;color:var(--brand);font-size:12px">${o.cryptoAmount}</div></td>
+    <td style="font-size:12px">${SHIP_LABELS[o.shipMode]||o.shipMode}${o.isGift?' 🎁':''}</td>
+    <td style="color:var(--muted);font-size:12px">${o.date}</td>
+    <td><span class="sbadge ${SL[o.status]||'s-processing'}">${SN[o.status]||o.status}</span></td>
+  </tr>`).join('');
+}
+
+/* ─── ADMIN ─── */
+const SC=['processing','purchasing','shipped','delivered'];
+function filterAdmin(f,btn){
+  adminFilter=f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderAdmin();
+}
+function renderAdmin(){
+  const filtered=adminFilter==='all'?orders:orders.filter(o=>o.status===adminFilter);
+  const b=document.getElementById('admin-body');
+  document.getElementById('no-admin').classList.toggle('hidden',filtered.length>0);
+  document.getElementById('kpi-tot').textContent=orders.length;
+  document.getElementById('kpi-pend').textContent=orders.filter(o=>['processing','purchasing'].includes(o.status)).length;
+  const rev=orders.reduce((s,o)=>s+(o.csFee||0),0);
+  const vol=orders.reduce((s,o)=>s+(o.priceEur||0),0);
+  document.getElementById('kpi-rev').textContent='€'+rev.toFixed(0);
+  document.getElementById('kpi-vol').textContent='€'+vol.toFixed(0);
+  b.innerHTML=filtered.map(o=>{
+    const idx=orders.indexOf(o);
+    const ci=SC.indexOf(o.status);
+    return`<tr>
+      <td style="font-weight:700;font-size:11px">${o.id}</td>
+      <td><div style="font-weight:600;font-size:12px">${o.customer||'—'}</div><div style="font-size:11px;color:var(--muted)">${o.email||'—'}</div></td>
+      <td><div style="display:flex;align-items:center;gap:7px"><span style="font-size:16px">${o.icon}</span><div><div style="font-weight:700;font-size:12px">${o.name}</div><div style="font-size:11px;color:var(--muted)">${o.src}</div></div></div></td>
+      <td style="font-weight:700;color:var(--brand);font-size:12px">${o.cryptoAmount}${o.isGift?' 🎁':''}</td>
+      <td style="color:var(--accent);font-weight:700">€${(o.csFee||0).toFixed(2)}</td>
+      <td style="font-size:11px">${SHIP_LABELS[o.shipMode]||'—'}</td>
+      <td><span class="sbadge ${SL[o.status]||'s-processing'}">${SN[o.status]||o.status}</span></td>
+      <td>
+        <button class="act-btn" onclick="openModal(${idx})">Dettagli</button>
+        ${ci<SC.length-1?`<button class="act-btn ok" onclick="advance(${idx})">Avanza →</button>`:''}
+        <button class="act-btn del" onclick="deleteOrder(${idx})">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function advance(idx){
+  const ci=SC.indexOf(orders[idx].status);
+  if(ci<SC.length-1){orders[idx].status=SC[ci+1];localStorage.setItem('cs-orders',JSON.stringify(orders));renderAdmin();showToast('📦','Stato: '+SN[orders[idx].status]);}
+}
+function deleteOrder(idx){
+  if(!confirm('Eliminare ordine?'))return;
+  orders.splice(idx,1);localStorage.setItem('cs-orders',JSON.stringify(orders));renderAdmin();showToast('🗑️','Ordine eliminato');
+}
+function openModal(idx){
+  const o=orders[idx];
+  document.getElementById('modal-title').textContent='Ordine '+o.id;
+  document.getElementById('modal-body').innerHTML=`
+    <div class="drow"><span class="drow-lbl">Prodotto</span><span class="drow-val">${o.icon} ${o.name}</span></div>
+    <div class="drow"><span class="drow-lbl">Sito fornitore</span><span class="drow-val">${o.src}</span></div>
+    <div class="drow"><span class="drow-lbl">Cliente</span><span class="drow-val">${o.customer||'—'}</span></div>
+    <div class="drow"><span class="drow-lbl">Email</span><span class="drow-val">${o.email||'—'}</span></div>
+    <div class="drow"><span class="drow-lbl">Indirizzo spedizione</span><span class="drow-val">${o.address||'—'}</span></div>
+    <div class="drow"><span class="drow-lbl">Tipo spedizione</span><span class="drow-val">${SHIP_LABELS[o.shipMode]||'—'}</span></div>
+    <div class="drow"><span class="drow-lbl">Spedizione regalo</span><span class="drow-val">${o.isGift?'🎁 SÌ — rimuovere scontrino':'No — standard'}</span></div>
+    ${o.isGift&&o.giftMsg?`<div class="drow"><span class="drow-lbl">Messaggio regalo</span><span class="drow-val" style="font-style:italic">"${o.giftMsg}"</span></div>`:''}
+    ${o.isGift&&o.giftFrom?`<div class="drow"><span class="drow-lbl">Da parte di</span><span class="drow-val">${o.giftFrom}</span></div>`:''}
+    <div class="drow"><span class="drow-lbl">Pagato</span><span class="drow-val" style="color:var(--brand)">${o.cryptoAmount}</span></div>
+    <div class="drow"><span class="drow-lbl">Commissione CryptoShop</span><span class="drow-val" style="color:var(--accent)">€${(o.csFee||0).toFixed(2)}</span></div>
+    <div class="drow"><span class="drow-lbl">Fee provider</span><span class="drow-val" style="color:var(--warn)">€${(o.provFee||0).toFixed(2)}</span></div>
+    <div class="drow"><span class="drow-lbl">Stato</span><span class="sbadge ${SL[o.status]||'s-processing'}">${SN[o.status]||o.status}</span></div>
+    <div style="margin-top:16px;display:flex;gap:9px;flex-wrap:wrap">
+      <a href="https://${o.src}" target="_blank" style="display:inline-block;padding:9px 14px;background:var(--brand);color:#fff;border-radius:9px;font-size:13px;font-weight:700;text-decoration:none">🛒 Apri ${o.src}</a>
+      <button class="nbtn" onclick="advance(${idx});closeModal()">Avanza stato →</button>
+    </div>`;
+  document.getElementById('modal-ov').classList.remove('hidden');
+}
+function closeModal(){document.getElementById('modal-ov').classList.add('hidden');}
+
+/* ─── TOAST ─── */
+function showToast(icon,msg){
+  const t=document.getElementById('toast');
+  document.getElementById('t-ico').textContent=icon;
+  document.getElementById('t-msg').textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+
+/* ─── STORES DATA ─── */
+let storeFilter = 'all';
+const STORES = [
+  {id:1,name:'Profumeria Bella',cat:'beauty',icon:'🧴',addr:'Via Torino 12, Milano',online:false,offer:'15% sconto su tutti i profumi',sponsor:true,receive:'PayPal',coord:'bella@profumeria.it'},
+  {id:2,name:'TechStore Milano',cat:'tech',icon:'💻',addr:'Corso Buenos Aires 45, Milano',online:true,offer:'Garanzia estesa gratuita',sponsor:true,receive:'IBAN',coord:'IT60X0542811101000000123456'},
+  {id:3,name:'Moda Italiana',cat:'moda',icon:'👗',addr:'Via Montenapoleone 8, Milano',online:false,offer:'',sponsor:false,receive:'Satispay',coord:'modaitaliana'},
+  {id:4,name:'PizzaCrypto',cat:'food',icon:'🍕',addr:'Via Napoli 3, Roma',online:false,offer:'Pizza gratis ogni 5 ordini',sponsor:true,receive:'PayPal',coord:'pizza@crypto.it'},
+  {id:5,name:'Casa&Design',cat:'casa',icon:'🏠',addr:'',online:true,offer:'Spedizione gratis su ordini >€80',sponsor:false,receive:'PayPal',coord:'orders@casadesign.it'},
+  {id:6,name:'SportZone',cat:'sport',icon:'🚲',addr:'Viale dello Sport 1, Torino',online:true,offer:'10% sui prodotti running',sponsor:false,receive:'IBAN',coord:'IT60X0542811101000000654321'},
+  {id:7,name:'LibreriaWeb',cat:'altro',icon:'📚',addr:'',online:true,offer:'',sponsor:false,receive:'PayPal',coord:'libri@web.it'},
+  {id:8,name:'Gastronomia Neri',cat:'food',icon:'🧀',addr:'Piazza del Mercato 5, Firenze',online:false,offer:'Assaggio gratuito al primo ordine',sponsor:true,receive:'Satispay',coord:'neri.gastronomia'},
+];
+// Aggiungi negozi registrati dagli utenti
+let userStores = JSON.parse(localStorage.getItem('cs-user-stores') || '[]');
+
+function getAllStores(){ return [...STORES, ...userStores]; }
+
+function filterStores(cat, btn){
+  storeFilter = cat;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStores();
+}
+
+function renderStores(){
+  const all = getAllStores();
+  const list = storeFilter === 'all' ? all
+    : storeFilter === 'online' ? all.filter(s=>s.online)
+    : all.filter(s=>s.cat===storeFilter);
+
+  document.getElementById('stores-count').textContent = list.length + ' negozi';
+  document.getElementById('stores-title').textContent =
+    storeFilter==='all' ? 'Tutti i negozi partner' : 'Negozi: '+storeFilter;
+
+  const g = document.getElementById('store-grid');
+  if(!list.length){
+    g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)"><div style="font-size:40px;margin-bottom:12px">🏪</div><div>Nessun negozio in questa categoria ancora.<br><button class="nbtn p" onclick="showPage('merchant')" style="margin-top:12px;padding:9px 18px">Aggiungi il tuo negozio →</button></div></div>';
+    return;
+  }
+  g.innerHTML = list.map(s=>`
+    <div class="store-card ${s.sponsor?'featured':''}" onclick="openStoreModal(${s.id||''u'+s.name.replace(/\s/g,'')+'''},'${s.name}')">
+      <div class="store-img">${s.icon}</div>
+      <div class="store-body">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+          <div class="store-name">${s.name}</div>
+          ${s.sponsor?'<span class="store-sponsor-badge">SPONSOR</span>':''}
+        </div>
+        <div class="store-cat">${s.addr||'🌐 Solo online'}</div>
+        <div class="store-tags">
+          ${s.online?'<span class="store-tag">Online</span>':''}
+          ${s.addr?'<span class="store-tag">Fisico</span>':''}
+          ${s.offer?`<span class="store-tag offer">🎁 ${s.offer}</span>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openStoreModal(id, name){
+  const all = getAllStores();
+  const s = all.find(x=>x.id===id||x.name===name) || all[0];
+  document.getElementById('modal-title').textContent = s.icon+' '+s.name;
+  document.getElementById('modal-body').innerHTML = `
+    <div class="drow"><span class="drow-lbl">Categoria</span><span class="drow-val">${s.cat}</span></div>
+    <div class="drow"><span class="drow-lbl">Indirizzo</span><span class="drow-val">${s.addr||'Solo online'}</span></div>
+    <div class="drow"><span class="drow-lbl">Disponibile</span><span class="drow-val">${[s.addr?'In negozio':'',s.online?'Online':''].filter(Boolean).join(' · ')}</span></div>
+    ${s.offer?`<div style="background:var(--accent-light);border-radius:9px;padding:12px 14px;margin:12px 0;font-size:13px;color:var(--accent-dark)"><strong>🎁 Offerta esclusiva CryptoShop</strong><br>${s.offer}</div>`:''}
+    <div class="drow"><span class="drow-lbl">Riceve tramite</span><span class="drow-val">${s.receive}</span></div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="nbtn p" onclick="payStore(${JSON.stringify(s).replace(/"/g,'&quot;')});closeModal()">💳 Paga qui con credito →</button>
+      ${s.addr?`<a href="https://maps.google.com?q=${encodeURIComponent(s.addr)}" target="_blank" class="nbtn" style="display:inline-flex;align-items:center;gap:5px">🗺️ Apri in Maps</a>`:''}
+    </div>`;
+  document.getElementById('modal-ov').classList.remove('hidden');
+}
+
+function payStore(s){
+  // Precompila il form "Paga ora" con i dati del negozio
+  selectedPayMethod = s.receive === 'PayPal' ? 'paypal' : s.receive === 'Bonifico SEPA' ? 'iban' : 'satispay';
+  showPage('paynow');
+  document.getElementById('pn-dest').value = s.coord || '';
+  document.getElementById('pn-store-name').value = s.name || '';
+  showToast('🏪', 'Inserisci l'importo e conferma il pagamento a '+s.name);
+}
+
+/* ─── PAY NOW ─── */
+let pnAmountCents = 0;
+let selectedPayMethod = 'paypal';
+const PAY_FEE = 0.015; // 1.5%
+
+function initNumpad(){
+  const pad = document.getElementById('numpad');
+  if(!pad||pad.children.length>0) return;
+  const keys = ['1','2','3','4','5','6','7','8','9','⌫','0','00'];
+  pad.innerHTML = keys.map(k=>`<div class="numpad-btn" onclick="numpadPress('${k}')">${k}</div>`).join('');
+}
+
+function numpadPress(k){
+  if(k==='⌫'){ pnAmountCents = Math.floor(pnAmountCents/10); }
+  else if(k==='00'){ pnAmountCents = pnAmountCents*100; }
+  else { pnAmountCents = pnAmountCents*10 + parseInt(k); }
+  if(pnAmountCents > 500000) pnAmountCents = 500000; // max €5000
+  const eur = pnAmountCents/100;
+  document.getElementById('pn-amount-display').textContent = '€'+eur.toFixed(2);
+}
+
+function selectPayMethod(el){
+  document.querySelectorAll('.pay-method').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  selectedPayMethod = el.dataset.method;
+  const labels = {paypal:'Email PayPal del negoziante',iban:'IBAN del negoziante',satispay:'Username Satispay del negoziante',qr:'— Il negoziante mostrerà il suo QR code'};
+  const placeholders = {paypal:'negozio@email.com',iban:'IT60X0542811101000000123456',satispay:'@nomenegozio',qr:''};
+  document.getElementById('method-label').textContent = labels[selectedPayMethod];
+  document.getElementById('pn-dest').placeholder = placeholders[selectedPayMethod]||'';
+  document.getElementById('pn-dest').disabled = selectedPayMethod==='qr';
+  if(selectedPayMethod==='qr') document.getElementById('pn-dest').value='';
+}
+
+function pnNext(step){
+  if(step===1){
+    const eur = pnAmountCents/100;
+    if(eur<1){ showToast('⚠️','Importo minimo €1'); return; }
+    if(eur>walletBalance){ showToast('⚠️','Saldo insufficiente — ricarica il wallet'); return; }
+    const fee = +(eur*PAY_FEE).toFixed(2);
+    const total = +(eur+fee).toFixed(2);
+    document.getElementById('pn-recap-amount').textContent = '€'+eur.toFixed(2);
+    document.getElementById('pn-recap-fee').textContent = '€'+fee.toFixed(2);
+    document.getElementById('pn-recap-total').textContent = '€'+total.toFixed(2);
+    document.getElementById('pn-step1').classList.add('hidden');
+    document.getElementById('pn-step2').classList.remove('hidden');
+  } else if(step===2){
+    const eur = pnAmountCents/100;
+    const dest = document.getElementById('pn-dest').value.trim();
+    const storeName = document.getElementById('pn-store-name').value.trim() || 'Negozio';
+    if(selectedPayMethod!=='qr' && !dest){ showToast('⚠️','Inserisci le coordinate del negoziante'); return; }
+    const fee = +(eur*PAY_FEE).toFixed(2);
+    const total = +(eur+fee).toFixed(2);
+    if(total>walletBalance){ showToast('⚠️','Saldo insufficiente'); return; }
+    // Scala dal wallet
+    walletBalance = +(walletBalance-total).toFixed(2);
+    addWalletEntry('Pagamento in negozio: '+storeName, -total, walletBalance);
+    // Mostra step 3
+    document.getElementById('pn-step2').classList.add('hidden');
+    document.getElementById('pn-step3').classList.remove('hidden');
+    const txId = 'TX-'+Math.random().toString(36).slice(2,10).toUpperCase();
+    let content='';
+    if(selectedPayMethod==='qr'){
+      content=`<div class="qr-pay-display">
+        <div style="font-size:40px;margin-bottom:10px">📲</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px">Mostra questo schermo al negoziante</div>
+        <div style="font-size:28px;font-weight:800;color:var(--brand);margin:12px 0">€${eur.toFixed(2)}</div>
+        <div style="font-size:12px;color:var(--muted)">ID transazione: ${txId}</div>
+        <div style="margin-top:12px;font-size:12px;background:var(--accent-light);padding:8px 12px;border-radius:8px;color:var(--accent-dark)">✓ Pagamento autorizzato — il negoziante può scansionare o annotare l'ID</div>
+      </div>`;
+    } else {
+      const methodName = {paypal:'PayPal',iban:'Bonifico SEPA',satispay:'Satispay'}[selectedPayMethod];
+      const timing = selectedPayMethod==='iban'?'entro 24 ore':'entro pochi secondi';
+      content=`<div style="text-align:center;padding:20px 0">
+        <div style="font-size:48px;margin-bottom:12px">✅</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:6px">Pagamento inviato!</div>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:20px">${storeName} riceverà €${eur.toFixed(2)} via ${methodName} ${timing}</div>
+        <div style="background:var(--surface2);border-radius:10px;padding:14px;text-align:left;font-size:13px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted)">Importo inviato</span><strong>€${eur.toFixed(2)}</strong></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted)">Fee servizio</span><strong>€${fee.toFixed(2)}</strong></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted)">Metodo</span><strong>${methodName} → ${dest}</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">ID transazione</span><strong style="font-family:monospace">${txId}</strong></div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:12px">Il tuo saldo residuo: <strong style="color:var(--accent)">€${walletBalance.toFixed(2)}</strong></div>
+      </div>`;
+    }
+    document.getElementById('pn-step3-content').innerHTML = content;
+    updateNavBalance();
+    showToast('✅','Pagamento di €'+eur.toFixed(2)+' confermato!');
+  }
+}
+
+function pnBack(){
+  document.getElementById('pn-step2').classList.add('hidden');
+  document.getElementById('pn-step1').classList.remove('hidden');
+}
+
+/* ─── MERCHANT FORM ─── */
+function renderMerchantPanel(){
+  document.getElementById('m-receive').onchange = function(){
+    const labels = {paypal:'Email PayPal',iban:'IBAN bancario',satispay:'Username Satispay'};
+    document.getElementById('m-coord-label').textContent = labels[this.value]||'Coordinate pagamento';
+    document.getElementById('m-coord').placeholder = this.value==='iban'?'IT60X...':this.value==='satispay'?'@nomenegozio':'pagamenti@negozio.it';
+  };
+}
+
+function registerMerchant(plan){
+  document.getElementById('merchant-form').scrollIntoView({behavior:'smooth'});
+  document.getElementById('m-submit-btn').textContent = 'Registra il mio negozio (piano '+plan+') →';
+  showToast('📋','Compila il form qui sotto per registrarti con il piano '+plan);
+}
+
+function submitMerchant(){
+  const name = document.getElementById('m-name').value.trim();
+  const email = document.getElementById('m-email').value.trim();
+  const cat = document.getElementById('m-cat').value;
+  if(!name||!email){ showToast('⚠️','Inserisci nome negozio ed email'); return; }
+  const newStore = {
+    id: 'u'+Date.now(), name, cat,
+    icon: {moda:'👗',beauty:'🧴',tech:'💻',food:'🍕',casa:'🏠',sport:'🚲',altro:'🛍️'}[cat]||'🏪',
+    addr: document.getElementById('m-addr').value.trim(),
+    online: true,
+    offer: document.getElementById('m-offer').value.trim(),
+    sponsor: false,
+    receive: {paypal:'PayPal',iban:'Bonifico SEPA',satispay:'Satispay'}[document.getElementById('m-receive').value],
+    coord: document.getElementById('m-coord').value.trim(),
+    web: document.getElementById('m-web').value.trim(),
+  };
+  userStores.push(newStore);
+  localStorage.setItem('cs-user-stores', JSON.stringify(userStores));
+  showToast('🏪','Negozio "'+name+'" registrato! Apparirà nella directory.');
+  setTimeout(()=>showPage('stores'),1000);
+}
+
+
+/* ─── INIT ─── */
+updateNavBalance();
+renderProds(PRODUCTS);
+// Aggiorna balance nel paynow quando si mostra la pagina
+const _origShowPage = showPage;
+document.getElementById('page-paynow')?.addEventListener && (()=>{
+  // init numpad on first show
+})();
+// Override showPage per init numpad
+const __sp = showPage;
+showPage = function(p){
+  __sp(p);
+  if(p==='paynow'){
+    document.getElementById('pn-balance').textContent = '\u20ac'+walletBalance.toFixed(2);
+    pnAmountCents=0;
+    document.getElementById('pn-amount-display').textContent='\u20ac0.00';
+    document.getElementById('pn-step1').classList.remove('hidden');
+    document.getElementById('pn-step2').classList.add('hidden');
+    document.getElementById('pn-step3').classList.add('hidden');
+    initNumpad();
+  }
+};
+</script>
+</body>
+</html>
