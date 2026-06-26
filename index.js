@@ -22,7 +22,8 @@ app.use(helmet({
   contentSecurityPolicy: false, // disabilitato per semplicità in dev
 }));
 
-app.use(cors({
+app.use(cors({ origin: '*', credentials: false }));
+// app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'https://peaceful-bombolone-d3e100.netlify.app',
     'http://localhost:3000',
