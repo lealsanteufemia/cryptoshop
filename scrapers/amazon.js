@@ -12,12 +12,20 @@
  *   - Amazon Product Advertising API (ufficiale, richiede approvazione)
  */
 
-const puppeteer = require('puppeteer-core');
-
 const TIMEOUT_MS = parseInt(process.env.SCRAPER_TIMEOUT_MS || '10000', 10);
 
-// Cache del modulo ESM — viene caricato una sola volta
-let _chromium = null;
+// Cache dei moduli ESM — vengono caricati una sola volta
+let _puppeteer = null;
+let _chromium  = null;
+
+async function getPuppeteer() {
+  if (!_puppeteer) {
+    const mod = await import('puppeteer-core');
+    _puppeteer = mod.default;
+  }
+  return _puppeteer;
+}
+
 async function getChromium() {
   if (!_chromium) {
     const mod = await import('@sparticuz/chromium');
@@ -34,7 +42,7 @@ async function getExecutablePath(chromium) {
 }
 
 async function getAmazonPrice(url) {
-  const chromium = await getChromium();
+  const [puppeteer, chromium] = await Promise.all([getPuppeteer(), getChromium()]);
   let browser;
   try {
     browser = await puppeteer.launch({
