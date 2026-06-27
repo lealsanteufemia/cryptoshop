@@ -109,51 +109,62 @@ router.post('/webhook', express.raw({ type: '*/*' }), async (req, res) => {
   const sig = req.headers['x-coingate-signature'];
   const raw = req.body;
 
+  console.log('[Webhook] ← ricevuto — Content-Type:', req.headers['content-type']);
+  console.log('[Webhook] body length:', raw?.length ?? 0, '| signature header:', sig ? 'presente' : 'ASSENTE');
+
   // Verifica firma
-  if (!CoinGate.verifyWebhook(raw, sig)) {
-    console.warn('[Webhook] Firma non valida!');
+  const sigOk = CoinGate.verifyWebhook(raw, sig);
+  if (!sigOk) {
+    console.warn('[Webhook] ❌ Firma non valida — WEBHOOK_SECRET impostato:', !!process.env.WEBHOOK_SECRET);
+    console.warn('[Webhook] signature ricevuta:', sig);
     return res.status(401).json({ error: 'Invalid signature' });
   }
+  console.log('[Webhook] ✓ Firma ok (o WEBHOOK_SECRET non configurato)');
 
   let payload;
   try {
     payload = JSON.parse(raw.toString());
-  } catch {
+  } catch (parseErr) {
+    console.error('[Webhook] ❌ JSON non valido:', parseErr.message);
+    console.error('[Webhook] raw body:', raw.toString().slice(0, 200));
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
-  console.log(`[Webhook] CoinGate evento: ${payload.status} per ordine CG#${payload.id}`);
+  console.log(`[Webhook] payload: status=${payload.status} id=${payload.id} token=${payload.token}`);
 
   const order = Orders.findByCoinGateId(String(payload.id));
   if (!order) {
-    console.warn(`[Webhook] Ordine CoinGate #${payload.id} non trovato`);
-    return res.status(200).json({ ok: true }); // risponde 200 per evitare retry
+    console.warn(`[Webhook] ⚠️  Ordine CoinGate #${payload.id} non trovato nel DB`);
+    console.warn('[Webhook] token nel payload:', payload.token);
+    return res.status(200).json({ ok: true });
   }
 
-  const newStatus = CoinGate.mapStatus(payload.status);
+  console.log(`[Webhook] ordine interno trovato: ${order.id} — stato attuale: ${order.status}`);
 
-  // Aggiorna ordine
+  const newStatus = CoinGate.mapStatus(payload.status);
+  console.log(`[Webhook] mapStatus: ${payload.status} → ${newStatus}`);
+
   Orders.update(order.id, {
-    cryptoStatus:     payload.status,
-    cryptoAmount:     payload.pay_amount,
-    cryptoCurrency:   payload.pay_currency,
-    paidAt:           payload.status === 'paid' ? new Date().toISOString() : undefined,
+    cryptoStatus:   payload.status,
+    cryptoAmount:   payload.pay_amount,
+    cryptoCurrency: payload.pay_currency,
+    paidAt:         payload.status === 'paid' ? new Date().toISOString() : undefined,
   });
   Orders.addTimeline(order.id, newStatus, `Pagamento ${payload.status}`);
+  console.log(`[Webhook] ordine ${order.id} aggiornato a ${newStatus}`);
 
-  // Azioni in base allo stato
   if (payload.status === 'paid') {
-    console.log(`[Webhook] ✅ Pagamento confermato per ordine ${order.id}`);
-
-    // Manda email di conferma
-    await sendOrderConfirmation({
-      ...order,
-      cryptoAmount:   payload.pay_amount,
-      cryptoCurrency: payload.pay_currency,
-    });
-
-    // TODO: Avvia acquisto automatico sul sito fornitore
-    // await PurchaseService.buyProduct(order);
+    console.log(`[Webhook] ✅ Pagamento confermato per ordine ${order.id} — invio email a ${order.customerEmail}`);
+    try {
+      await sendOrderConfirmation({
+        ...order,
+        cryptoAmount:   payload.pay_amount,
+        cryptoCurrency: payload.pay_currency,
+      });
+      console.log(`[Webhook] ✓ Email inviata a ${order.customerEmail}`);
+    } catch (mailErr) {
+      console.error('[Webhook] ❌ Errore invio email:', mailErr.message);
+    }
   }
 
   return res.status(200).json({ ok: true });
