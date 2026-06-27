@@ -102,8 +102,10 @@ router.post('/:id/verify-price', (req, res) => {
     return res.status(409).json({ error: 'Verifica prezzo non applicabile in questo stato', stato: order.stato });
   }
 
-  // Simulazione: il prezzo corrente è uguale al prezzo originale
-  const prezzoAttuale = order.prezzo_originale;
+  // Se il chiamante passa prezzo_attuale nel body lo usa, altrimenti simula stesso prezzo
+  const prezzoAttuale = typeof req.body.prezzo_attuale === 'number'
+    ? req.body.prezzo_attuale
+    : order.prezzo_originale;
 
   if (prezzoAttuale <= order.prezzo_originale) {
     order.stato = 'PRICE_CONFIRMED';
