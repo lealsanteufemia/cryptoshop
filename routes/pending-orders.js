@@ -18,7 +18,7 @@ const pendingOrders = new Map();
 function buildOrder(product) {
   const prezzoOriginale = product.price;
   const margine         = parseFloat((prezzoOriginale * 0.15).toFixed(2));
-  const prezzoBloccato  = parseFloat((prezzoOriginale * 1.15 + FIXED_COSTS).toFixed(2));
+  const prezzoBloccato  = Math.ceil((prezzoOriginale * 1.15 + FIXED_COSTS) * 100) / 100;
   const now             = new Date();
   const scadeIl         = new Date(now.getTime() + EXPIRY_MINUTES * 60 * 1000);
 
