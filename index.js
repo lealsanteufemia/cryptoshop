@@ -6,10 +6,11 @@ const cors       = require('cors');
 const helmet     = require('helmet');
 const cron       = require('node-cron');
 
-const ordersRouter   = require('./routes/orders');
-const storesRouter   = require('./routes/stores');
-const searchRouter   = require('./routes/search');
-const productsRouter = require('./routes/products');
+const ordersRouter        = require('./routes/orders');
+const pendingOrdersRouter = require('./routes/pending-orders');
+const storesRouter        = require('./routes/stores');
+const searchRouter        = require('./routes/search');
+const productsRouter      = require('./routes/products');
 const { Orders }     = require('./db/database');
 
 const app  = express();
@@ -52,8 +53,9 @@ if (process.env.NODE_ENV !== 'production') {
 /* ──────────────────────────────────────────
    ROUTES
    ────────────────────────────────────────── */
-app.use('/api/orders',   ordersRouter);
-app.use('/api/products', productsRouter);
+app.use('/api/orders',         ordersRouter);
+app.use('/api/pending-orders', pendingOrdersRouter);
+app.use('/api/products',       productsRouter);
 app.use('/api/stores',   storesRouter);
 app.use('/api/search',   searchRouter);
 
