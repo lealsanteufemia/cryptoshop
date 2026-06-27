@@ -2,8 +2,13 @@
 
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
+const { getAmazonPrice } = require('../scrapers/amazon');
 
 const router = express.Router();
+
+function isAmazon(source) {
+  return typeof source === 'string' && source.toLowerCase().includes('amazon');
+}
 
 const FIXED_COSTS    = parseFloat(process.env.ORDER_FIXED_COSTS    || '2');
 const EXPIRY_MINUTES = parseInt(process.env.ORDER_EXPIRY_MINUTES   || '10', 10);
@@ -83,9 +88,9 @@ router.get('/:id', (req, res) => {
 
 /* ──────────────────────────────────────────
    POST /api/pending-orders/:id/verify-price
-   Simula verifica prezzo sul venditore e aggiorna stato
+   Verifica il prezzo attuale sul venditore e aggiorna stato
    ────────────────────────────────────────── */
-router.post('/:id/verify-price', (req, res) => {
+router.post('/:id/verify-price', async (req, res) => {
   const order = pendingOrders.get(req.params.id);
 
   if (!order) {
@@ -102,10 +107,24 @@ router.post('/:id/verify-price', (req, res) => {
     return res.status(409).json({ error: 'Verifica prezzo non applicabile in questo stato', stato: order.stato });
   }
 
-  // Se il chiamante passa prezzo_attuale nel body lo usa, altrimenti simula stesso prezzo
-  const prezzoAttuale = typeof req.body.prezzo_attuale === 'number'
-    ? req.body.prezzo_attuale
-    : order.prezzo_originale;
+  let prezzoAttuale;
+
+  if (typeof req.body.prezzo_attuale === 'number') {
+    // Override manuale — utile per test o venditori non ancora supportati
+    prezzoAttuale = req.body.prezzo_attuale;
+  } else if (isAmazon(order.product.source)) {
+    try {
+      prezzoAttuale = await getAmazonPrice(order.product.link);
+    } catch (err) {
+      console.error('[verify-price] Scraping Amazon fallito:', err.message);
+      return res.status(502).json({ error: 'Impossibile verificare il prezzo su Amazon: ' + err.message });
+    }
+  } else {
+    return res.status(501).json({
+      error:  'Verifica prezzo non ancora supportata per questo venditore',
+      source: order.product.source,
+    });
+  }
 
   if (prezzoAttuale <= order.prezzo_originale) {
     order.stato = 'PRICE_CONFIRMED';
@@ -118,12 +137,11 @@ router.post('/:id/verify-price', (req, res) => {
   }
 
   // Prezzo aumentato: aggiorna stato e restituisce entrambi i prezzi
-  const vecchioPrezzo = order.prezzo_originale;
-  order.stato         = 'PRICE_CHANGED';
+  order.stato = 'PRICE_CHANGED';
   return res.json({
-    stato:           order.stato,
-    prezzo_vecchio:  vecchioPrezzo,
-    prezzo_attuale:  prezzoAttuale,
+    stato:          order.stato,
+    prezzo_vecchio: order.prezzo_originale,
+    prezzo_attuale: prezzoAttuale,
   });
 });
 
