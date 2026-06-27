@@ -63,8 +63,13 @@ const CoinGate = {
         expiresAt:   cg.expire_at,
       };
     } catch (err) {
-      console.error('[CoinGate] createOrder error:', err.response?.data || err.message);
-      return { ok: false, error: err.response?.data?.reason || err.message };
+      const status   = err.response?.status;
+      const body     = err.response?.data;
+      const sandbox  = SANDBOX ? 'sandbox' : 'live';
+      console.error(`[CoinGate] createOrder FAILED (${sandbox}) — HTTP ${status ?? 'no-response'}`);
+      console.error('[CoinGate] response body:', JSON.stringify(body ?? null));
+      console.error('[CoinGate] error message:', err.message);
+      return { ok: false, error: body?.reason || body?.message || err.message };
     }
   },
 
